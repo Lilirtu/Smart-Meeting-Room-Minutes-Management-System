@@ -1,3 +1,7 @@
+-- Drop table is used to prevent a recreation of the tables if they already existed in case a table was edited to avoid errors
+DROP TABLE IF EXISTS Assignment, Notification, MinutesOfMeeting, Attendance, Agenda, MeetingReservation, RoomFeature, Feature, Room, Users, Role;
+
+
 CREATE TABLE Role(
     Id INT PRIMARY KEY AUTO_INCREMENT,
     RoleName ENUM('Admin','Employee','Guest') NOT NULL,
