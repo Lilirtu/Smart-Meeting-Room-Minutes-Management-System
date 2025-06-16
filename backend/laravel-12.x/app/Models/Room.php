@@ -11,5 +11,9 @@ class Room extends Model {
     public $timestamps = false; // Laravel automatically expects and manages two timestamp columns: created_at and updated_at. If your table does not have these columns, you set this to false to prevent errors.
     protected $fillable = ['Name', 'Location', 'Capacity']; // to let laravel know which columns can be filled because by defaults it blocks the assignment on all field 
 
+    public function features() {
+        return $this->belongsToMany(Feature::class, 'RoomFeature', 'RoomId', 'FeatureId');
+    }
+
     // can create a methode to group all the meetings that are made in this room
 }
