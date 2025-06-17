@@ -12,6 +12,9 @@ class Users extends Model {
     protected $fillable = ['FullName', 'Email', 'Password', 'RoleId']; // to let laravel know which columns can be filled because by defaults it blocks the assignment on all field
     protected $hidden = ['Password']; // to hide some sensitive information and not share it raw 
 
+    protected function casts(): array {
+        return ['password' => 'hashed',];
+    }
     //This methods in laravel i used to define a many to many relationship in terms of sql
     public function role(){
         return $this->belongsTo(Role::class, 'RoleId', 'Id');
@@ -21,7 +24,3 @@ class Users extends Model {
     }
 
 }
-
-
-
-
