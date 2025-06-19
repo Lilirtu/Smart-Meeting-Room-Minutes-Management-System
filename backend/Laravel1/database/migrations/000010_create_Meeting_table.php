@@ -8,7 +8,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('Meeting', function (Blueprint $table) {
-            $table->id(); // 'Id' column as PRIMARY KEY
+            $table->id('id'); // 'Id' column as PRIMARY KEY
             $table->time('StartTime'); // 'StartTime' TIME NOT NULL
             $table->time('EndTime'); // 'EndTime' TIME NOT NULL
             $table->date('Date'); // 'Date' DATE NOT NULL
@@ -18,9 +18,9 @@ return new class extends Migration
             $table->unsignedBigInteger('MinutesOfMeetingId')->nullable(); // 'MinutesOfMeetingId' INT, optional
             $table->unsignedBigInteger('AgendaId')->nullable(); // 'AgendaId' INT, optional
             // Foreign Key Constraints
-            $table->foreign('ReservationId')->references('Id')->on('reservations')->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreign('MinutesOfMeetingId')->references('Id')->on('minutes_of_meeting')->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreign('AgendaId')->references('Id')->on('agenda')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreign('ReservationId')->references('id')->on('Reservation')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreign('MinutesOfMeetingId')->references('id')->on('MinutesOfMeeting')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreign('AgendaId')->references('id')->on('Agenda')->restrictOnDelete()->cascadeOnUpdate();
             $table->timestamps(); // Created_At and Updated_At
         });
     }
