@@ -18,9 +18,9 @@ return new class extends Migration
             $table->unsignedBigInteger('MinutesOfMeetingId')->nullable(); // 'MinutesOfMeetingId' INT, optional
             $table->unsignedBigInteger('AgendaId')->nullable(); // 'AgendaId' INT, optional
             // Foreign Key Constraints
-            $table->foreign('ReservationId')->references('Id')->on('reservations')->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreign('MinutesOfMeetingId')->references('Id')->on('minutes_of_meeting')->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreign('AgendaId')->references('Id')->on('agenda')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreign('ReservationId')->references('id')->on('Reservation')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreign('MinutesOfMeetingId')->references('id')->on('MinutesOfMeeting')->restrictOnDelete()->cascadeOnUpdate();
+            $table->foreign('AgendaId')->references('id')->on('Agenda')->restrictOnDelete()->cascadeOnUpdate();
             $table->timestamps(); // Created_At and Updated_At
         });
     }
