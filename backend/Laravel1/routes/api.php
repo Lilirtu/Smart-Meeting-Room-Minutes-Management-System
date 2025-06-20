@@ -29,3 +29,7 @@ Route::apiResource('attendance', AttendanceController::class);
 Route::apiResource('reservation', ReservationController::class);
 Route::apiResource('minutes', MinutesOfMeetingController::class);
 Route::apiResource('meeting', MeetingController::class);
+Route::apiResource('attachment', AttachmentController::class);
+Route::apiResource('notification', NotificationController::class);
+Route::apiResource('assignment', AssignmentController::class);
+Route::apiResource('groupassignment', GroupAssignmentController::class);
