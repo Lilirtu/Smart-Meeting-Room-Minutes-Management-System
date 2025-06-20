@@ -13,6 +13,10 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\MinutesOfMeetingController;
 use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\GroupAssignmentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();

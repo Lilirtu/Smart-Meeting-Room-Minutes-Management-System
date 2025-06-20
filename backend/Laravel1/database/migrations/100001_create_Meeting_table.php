@@ -8,7 +8,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('Meeting', function (Blueprint $table) {
-            $table->id('id'); // 'Id' column as PRIMARY KEY
+            $table->id(); // 'Id' column as PRIMARY KEY
             $table->time('StartTime'); // 'StartTime' TIME NOT NULL
             $table->time('EndTime'); // 'EndTime' TIME NOT NULL
             $table->date('Date'); // 'Date' DATE NOT NULL
