@@ -1,34 +1,85 @@
-<?php 
+<?php
 
-namespace App\Models; // Where the file lives
+namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model; // it make the class to be able to talk to the database and use functions
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Users extends Authenticatable{ 
+class Users extends Authenticatable
+{
     use HasApiTokens;
-    protected $table = 'Users'; // let laravel know in which table we work to avoid confusion because laravel take the default exemple users for User and here we use Users so to not make confusion
-    protected $primaryKey = 'id'; // same idea by default laravel take th ename of the primary key id not Id so to avoid errors and not found columns
-    public $timestamps = false; // Laravel automatically expects and manages two timestamp columns: created_at and updated_at. If your table does not have these columns, you set this to false to prevent errors.
-    protected $fillable = ['FullName', 'Email', 'Password', 'RoleId']; // to let laravel know which columns can be filled because by defaults it blocks the assignment on all field
-    protected $hidden = ['Password']; // to hide some sensitive information and not share it raw 
 
-    protected function casts(): array {
-        return ['password' => 'hashed',];
+    protected $table = 'Users';  // your table name
+    protected $primaryKey = 'id';  // keep your primary key if it's lowercase 'id'; if your DB has 'ID', set 'ID'
+
+    public $timestamps = false;  // as you said, your table doesn’t have created_at/updated_at
+
+    protected $fillable = ['FullName', 'Email', 'Password', 'RoleId'];  // correct fillables
+
+    protected $hidden = ['Password'];  // hide hashed password
+
+    /*protected function casts(): array
+    {
+        return [
+            'Password' => 'hashed',
+        ];
+    }*/
+
+    /**
+     * Override the method that tells Laravel which column is the username identifier.
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'id';  // matches your DB column exactly (case-sensitive)
     }
-    //To change the default name of password so laravel identifies it
+
+    /**
+     * Override the method to tell Laravel how to get the password field.
+     */
     public function getAuthPassword()
     {
-        return $this->Password;
+        return $this->Password;  // matches your DB column exactly (case-sensitive)
     }
 
-    //This methods in laravel i used to define a many to many relationship in terms of sql
-    public function role(){
+    /**
+     * Add accessors & mutators so Laravel can read/write to your uppercase columns properly.
+     */
+    public function getEmailAttribute()
+    {
+        return $this->attributes['Email'] ?? null;
+    }
+
+    public function setEmailAttribute($value)
+    {
+        $this->attributes['Email'] = $value;
+    }
+
+    public function getPasswordAttribute()
+    {
+        return $this->attributes['Password'] ?? null;
+    }
+
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['Password'] = $value;
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->attributes['FullName'] ?? null;
+    }
+
+    public function setFullNameAttribute($value)
+    {
+        $this->attributes['FullName'] = $value;
+    }
+
+    /**
+     * Define your relationship to the Role model.
+     */
+    public function role()
+    {
         return $this->belongsTo(Role::class, 'RoleId', 'Id');
-        // this has a foreign key that belongs to the Role model class (table). 
-        // RoleId is the foreign key in the current model (Users) 
-        // Id is the primary key in the model it belongs to 
     }
-
 }
