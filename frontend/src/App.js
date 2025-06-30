@@ -1,0 +1,23 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LogInForm from './Components/LogInForm/LogInForm';
+import RegisterForm from './Components/RegisterForm/RegisterForm';
+import RoomBookingForm from './Components/RoomBookingForm/MeetingRoomBooking';
+import React from 'react';
+import axios from 'axios';
+// import other pages/components as needed
+
+axios.defaults.withCredentials = true;
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LogInForm />} />
+        <Route path="/register" element={<RegisterForm/>} />
+        <Route path="/booking" element={<RoomBookingForm/>} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
