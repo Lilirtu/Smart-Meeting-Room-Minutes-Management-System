@@ -1,64 +1,49 @@
+import React from 'react';
+import CreateMeeting from './CreateMeeting';
+import CalendarWidget from './CalendarWidget';
+import UpcomingEvents from './UpcomingEvents';
+import DeadlineAlert from './DeadlineAlert';
 import NotificationButton from './NotificationButton';
 import ProfileButton from './ProfileButton';
-import BookMeetingButton from './BookMeetingButton';
-import CalendarWidget from './CalendarWidget';
-import DeadlineAlert from './DeadlineAlert';
-import UpcomingMeetings from './UpcomingMeetings';
-import RoomManagementButton from './RoomManagementButton';
-import SubmitWorkButton from './SubmitWorkButton';
+import '../Assets/style.css';
+import { FaDoorOpen, FaPaperPlane } from 'react-icons/fa';  // Import icons
 
 function Dashboard() {
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#ffffff',
-      padding: '2rem',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '2rem',
-      boxSizing: 'border-box',
-    }}>
-      
-      {/* Top Bar */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-      }}>
-        <NotificationButton count={3} />
-        <ProfileButton />
-      </div>
+    <div className="dashboard-container">
+      <nav className="dashboard-navbar">
+        <h2>Dashboard</h2>
+        <div className="icon-group">
+          <NotificationButton />
+          <ProfileButton />
+        </div>
+      </nav>
 
-      {/* Main layout */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '1.5rem',
-        alignItems: 'flex-start',
-        width: '100%',
-      }}>
-        <div style={{
-          flex: '1 1 250px',
-          minWidth: '250px',
-          maxWidth: '350px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem'
-        }}>
-          <BookMeetingButton />
-          <RoomManagementButton /> {/* Added here */}
-          <UpcomingMeetings />
+      <div className="dashboard-grid">
+        <div className="left-column">
+          <CreateMeeting />
+
+          {/* New Manage Rooms Button */}
+          <button className="custom-button">
+            <FaDoorOpen style={{ marginRight: '8px' }} />
+            Manage Rooms
+          </button>
+
+          {/* New Submit Work Button */}
+          <button className="custom-button">
+            <FaPaperPlane style={{ marginRight: '8px' }} />
+            Submit Work
+          </button>
+
+          <DeadlineAlert />
         </div>
 
-        <div style={{ flex: '2 1 350px', minWidth: '300px', maxWidth: '600px' }}>
+        <div className="center-column">
           <CalendarWidget />
         </div>
 
-        <div style={{ flex: '1 1 300px', minWidth: '250px', maxWidth: '350px' }}>
-          <DeadlineAlert />
-          <SubmitWorkButton /> {/* Added here */}
+        <div className="right-column">
+          <UpcomingEvents />
         </div>
       </div>
     </div>

@@ -13,11 +13,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LogInForm />} />           {/* 👈 Add this to handle root */}
+        <Route path="/" element={<LogInForm />} />
         <Route path="/login" element={<LogInForm />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/booking" element={<RoomBookingForm />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/Dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
