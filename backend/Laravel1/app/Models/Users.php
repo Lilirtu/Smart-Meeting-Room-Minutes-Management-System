@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Users extends Authenticatable
+class Users extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'Users';  // your table name
     protected $primaryKey = 'id';  // keep your primary key if it's lowercase 'id'; if your DB has 'ID', set 'ID'
@@ -17,14 +20,14 @@ class Users extends Authenticatable
 
     protected $fillable = ['FullName', 'Email', 'Password', 'RoleId'];  // correct fillables
 
-    protected $hidden = ['Password'];  // hide hashed password
+    protected $hidden = ['Password', 'remember_token'];  // hide hashed password
 
-    /*protected function casts(): array
+    protected function casts(): array
     {
         return [
             'Password' => 'hashed',
         ];
-    }*/
+    }
 
     /**
      * Override the method that tells Laravel which column is the username identifier.
@@ -81,5 +84,13 @@ class Users extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class, 'RoleId', 'Id');
+    }
+
+    public function getJWTIdentifier(){
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(){
+        return [];
     }
 }

@@ -1,25 +1,12 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LogInForm from './Components/LogInForm/LogInForm';
-import RegisterForm from './Components/RegisterForm/RegisterForm';
-import RoomBookingForm from './Components/RoomBookingForm/MeetingRoomBooking';
-import Dashboard from './Components/Dashboard/Dashboard';
-import React from 'react';
-import axios from 'axios';
-// import other pages/components as needed
-
-axios.defaults.withCredentials = true;
+import { useState } from "react";
+import RouterComponent from "./router";
+import './App.css'
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LogInForm />} />
-        <Route path="/login" element={<LogInForm />} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/booking" element={<RoomBookingForm />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-      </Routes>
-    </Router>
+    <div>
+      <RouterComponent/>
+    </div>
   );
 }
 
