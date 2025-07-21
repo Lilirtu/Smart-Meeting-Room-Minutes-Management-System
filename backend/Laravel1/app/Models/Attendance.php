@@ -7,7 +7,7 @@ class Attendance extends Model
 {
     protected $table = 'Attendance';
     public $timestamps = false;
-    protected $primaryKey = 'Id';
+    protected $primaryKey = 'id';
     protected $fillable = ['UserId', 'MeetingId'];
 }
 

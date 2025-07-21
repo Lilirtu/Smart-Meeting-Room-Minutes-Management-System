@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('Attendance', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('UserId');
-
             $table->foreign('UserId')->references('id')->on('Users')->onUpdate('cascade')->onDelete('restrict');
         });
     }

@@ -8,6 +8,6 @@ class MinutesOfMeeting extends Model
 {
     protected $table = 'MinutesOfMeeting';
     public $timestamps = false;
-    protected $primaryKey = 'Id';
+    protected $primaryKey = 'id';
     protected $fillable = ['Topic', 'Summary', 'DecisionMade'];
 }
