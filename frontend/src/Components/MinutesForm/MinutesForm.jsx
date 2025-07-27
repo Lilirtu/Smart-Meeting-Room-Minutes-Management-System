@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-//import "./MinutesForm.css";
+import "../RoomBookingForm/MeetingRoomBooking.css";
 import axios from "axios";
 
 const MinutesForm = () => {
@@ -83,9 +83,9 @@ const MinutesForm = () => {
   if (pageLoading) return <p className="text-center text-secondary fs-5">Loading...</p>;
 
   return (
-    <div className="Minutes-container">
+    <div className="container">
       <h1>Minutes Of Meeting</h1>
-      <form onSubmit={handleSubmit} className="Minutes-form">
+      <form onSubmit={handleSubmit} className="form">
         <input
           type="text"
           name="topic"
@@ -95,27 +95,33 @@ const MinutesForm = () => {
           onChange={(e) => setTopic(e.target.value)}
         />
 
-        <div>
-          <input
-            type="text"
-            name="summary"
-            placeholder="Summary"
-            required
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-          />
-        </div>
+        <textarea
+  name="summary"
+  placeholder="Summary"
+  required
+  value={summary}
+  onChange={(e) => {
+    setSummary(e.target.value);
+    e.target.style.height = 'auto'; // Reset height
+    e.target.style.height = e.target.scrollHeight + 'px'; // Set new height
+  }}
+  rows={1} // Start with one line
+/>
 
-        <div>
-          <input
-            type="text"
-            name="DecisionMade"
-            placeholder="Decision Made"
-            required
-            value={decisionMade}
-            onChange={(e) => setDecisionMade(e.target.value)}
-          />
-        </div>
+
+        <textarea
+  name="DecisionMade"
+  placeholder="Decision Made"
+  required
+  value={decisionMade}
+  onChange={(e) => {
+    setDecisionMade(e.target.value);
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
+  }}
+  rows={1}
+/>
+
 
 
         <div className="button-group">
