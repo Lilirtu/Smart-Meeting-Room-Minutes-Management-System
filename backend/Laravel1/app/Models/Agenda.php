@@ -13,4 +13,9 @@ class Agenda extends Model
 
     // Allow mass assignment on these fields
     protected $fillable = ['Title', 'Description'];
+    public function agenda()
+{
+    // The foreign key in Agenda is 'MeetingId', the local key in Meeting is 'id'
+    return $this->hasOne(Agenda::class, 'MeetingId', 'id');
+}
 }

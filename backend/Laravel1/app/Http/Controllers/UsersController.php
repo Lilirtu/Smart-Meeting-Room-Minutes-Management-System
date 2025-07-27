@@ -6,7 +6,6 @@ use App\Models\Users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 
@@ -19,20 +18,20 @@ class UsersController extends Controller
             'FullName' => 'required|string|max:255',
             'Email' => 'required|email|unique:Users,Email',
             'Password' => 'required|string|min:6',
-            'RoleId' => 'required|integer|exists:Role,id', //Role,ID 
+            'RoleId' => 'required|integer|exists:Role,id', //Role,ID
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['errors'=> $validator->errors()],422);
         }
-        
-        
+
+
         $user = Users::create([
             'FullName' => $request->FullName,
             'Email' => $request->Email,
             'Password' => Hash::make($request->Password),
             'RoleId' => $request->RoleId
-        ]); 
+        ]);
 
         $token = JWTAuth::fromUser($user);
 
@@ -40,7 +39,7 @@ class UsersController extends Controller
         'user'=>$user,
         'token'=>$token
         ],201);
-        
+
     }
 
     public function login(Request $request){
@@ -49,7 +48,7 @@ class UsersController extends Controller
             'Email' => 'required|email',
             'Password' => 'required|string|min:6',
         ]);
-        
+
         $user = Users::where('Email', $request->Email)->first();
 
         if(!$user){
@@ -91,7 +90,7 @@ class UsersController extends Controller
             }
 
             JWTAuth::invalidate($token);
-            return response()->json(['message'=> 'Log Out Successfully'],401);    
+            return response()->json(['message'=> 'Log Out Successfully'],401);
         }
         catch(\Tymon\JWTAuth\Exceptions\JWTException $e){
             return response()->json(['error'=> 'Failed to Logout Invalid'],401);

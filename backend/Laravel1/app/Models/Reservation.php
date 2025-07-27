@@ -10,4 +10,13 @@ class Reservation extends Model
     public $timestamps = false;
     protected $primaryKey = 'Id';
     protected $fillable = ['Status', 'StartTime', 'EndTime', 'Date', 'UserId', 'RoomId'];
+
+    public function meeting(){
+    return $this->belongsTo(Meeting::class, 'MeetingId');
+    }
+
+    public function room() {
+    return $this->belongsTo(\App\Models\Room::class, 'RoomId');
+    }
+
 }

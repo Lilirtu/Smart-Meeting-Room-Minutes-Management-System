@@ -22,6 +22,6 @@ class GroupAssignment extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'UserId');
+        return $this->belongsTo(Users::class, 'UserId');
     }
 }

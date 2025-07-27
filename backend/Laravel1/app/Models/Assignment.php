@@ -34,6 +34,6 @@ class Assignment extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'GroupAssignment', 'AssignmentId', 'UserId');
+        return $this->belongsToMany(Users::class, 'GroupAssignment', 'AssignmentId', 'UserId');
     }
 }

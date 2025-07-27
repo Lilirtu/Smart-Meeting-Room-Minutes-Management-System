@@ -18,7 +18,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\GroupAssignmentController;
 use Illuminate\Support\Facades\Route;
-
+use Tymon\JWTAuth\Http\Middleware\Authenticate;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -44,3 +44,8 @@ Route::post('/register',[UsersController::class,'register']);
 Route::post('/login',[UsersController::class,'login']);
 Route::get('/dashboard',[UsersController::class,'dashboard']);
 Route::post('/logout',[UsersController::class,'logout']);
+
+Route::get('/user-meetings', [App\Http\Controllers\MeetingController::class, 'getUpcomingMeetingsForUser']);
+Route::middleware('auth:sanctum')->get('/user-meetings', [MeetingController::class, 'getUpcomingMeetingsForUser']);
+
+
