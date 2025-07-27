@@ -126,9 +126,9 @@ const MeetingRoomBooking = () => {
   if (pageLoading) return <p className="text-center text-secondary fs-5">Loading...</p>;
 
   return (
-    <div className="booking-container">
+    <div className="container">
       <h1>Book a Meeting Room</h1>
-      <form onSubmit={handleSubmit} className="booking-form">
+      <form onSubmit={handleSubmit} className="form">
         <input
           type="text"
           name="status"
@@ -171,13 +171,18 @@ const MeetingRoomBooking = () => {
           />
         </div>
 
-        <input
-          type="text"
-          name="attendees"
-          placeholder="Attendees (comma-separated emails)"
-          value={attendees}
-          onChange={(e) => setAttendees(e.target.value)}
-        />
+        <textarea
+  name="attendees"
+  placeholder="Attendees (comma-separated emails)"
+  value={attendees}
+  onChange={(e) => {
+    setAttendees(e.target.value);
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
+  }}
+  rows={1}
+/>
+
 
         <select
           name="room"
