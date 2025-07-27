@@ -26,19 +26,37 @@ Route::get('/user', function (Request $request) {
 
 // CRUD API routes
 Route::apiResource('users', UsersController::class);
+Route::post('usersIds', [UsersController::class, 'getUsersIds']);
+
 Route::apiResource('role', RoleController::class);
+
 Route::apiResource('room', RoomController::class);
+Route::get('/roomIndex', [RoomController::class, 'index']);
+
 Route::apiResource('feature', FeatureController::class);
+
 Route::apiResource('room_feature', RoomFeatureController::class);
+
 Route::apiResource('agenda', AgendaController::class);
+
 Route::apiResource('attendance', AttendanceController::class);
+
 Route::apiResource('reservation', ReservationController::class);
+Route::post('/booking', [ReservationController::class, 'store']);
+
 Route::apiResource('minutes', MinutesOfMeetingController::class);
+Route::post('/minutes_of_meeting', [MinutesOfMeetingController::class, 'store']);
+
 Route::apiResource('meeting', MeetingController::class);
+
 Route::apiResource('attachment', AttachmentController::class);
+
 Route::apiResource('notification', NotificationController::class);
+
 Route::apiResource('assignment', AssignmentController::class);
+
 Route::apiResource('groupassignment', GroupAssignmentController::class);
+
 
 Route::post('/register',[UsersController::class,'register']);
 Route::post('/login',[UsersController::class,'login']);

@@ -9,6 +9,10 @@ class Meeting extends Model
 {
     use HasFactory;
 
+    protected $table = 'Meeting';
+    protected $primaryKey = 'id';
+    public $timestamps = false;
+
     protected $fillable = [
         'StartTime',
         'EndTime',
@@ -23,6 +27,10 @@ class Meeting extends Model
     public function reservation()
     {
         return $this->belongsTo(Reservation::class, 'ReservationId');
+    }
+
+    public function attendees() {
+        return $this->hasMany(Attendance::class, 'MeetingId');
     }
 
     public function minutesOfMeeting()
