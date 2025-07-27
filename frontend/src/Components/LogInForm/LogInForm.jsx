@@ -3,52 +3,67 @@ import axios from 'axios';
 import './LogIn&RegisterForm.css';
 import { HiOutlineUser } from "react-icons/hi";
 import { TbLockPassword } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
 
-const LogInForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const LoginForm = () => {
+  const [email, setEmail] = useState("");     
+  const [password, setPassword] = useState(""); 
+  const [error, setError] = useState("");      
+  const [success, setSuccess] = useState("");   
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();               
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setLoading(true);
+    setError("");
+    setSuccess("");
 
     try {
-      // STEP 1: Get CSRF cookie for Sanctum session auth
-      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {withCredentials: true});
+      const response = await axios.post("http://localhost:8000/api/login", {
+        Email: email,      
+        Password: password,
+      });
 
-      // STEP 2: Send login request - use lowercase keys `email` & `password`
-      const response = await axios.post('http://localhost:8000/login', {
-        Email: email,      // Laravel expects `email`
-        Password: password,   // and `password`
-      }, {withCredentials: true});
+      console.log("Response:", response.data);
 
-      console.log('Login successful:', response.data);
-      // Redirect or update UI after successful login here
-
-    } catch (err) {
-      if (err.response) {
-        console.error("Server responded with error:", err.response.status, err.response.data);
-      } else if (err.request) {
-        console.error("Request made but no response received:", err.request);
+      if (response.data.token && response.data.user) {
+        setSuccess("Login successful!");
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        navigate("/dashboard");
       } else {
-        console.error("Error setting up request:", err.message);
+        setError("Invalid login response. Please try again.");
       }
-      setError("Invalid credentials or server error.");
+    } catch (err) {
+      console.error("Login error:", err.response || err);
+      if (err.response && err.response.data) {
+        setError(
+          err.response.data.error ||
+          err.response.data.message ||
+          "Login failed. Please try again."
+        );
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className = "BG"> 
-      <div className='wrapper'>
+    <div className="BG">
+      <div className="wrapper">
         <form onSubmit={handleSubmit}>
-          <h1>LogIn</h1>
+          <h1>Login</h1>
           {error && <p style={{ color: 'red' }}>{error}</p>}
+          {success && <p style={{ color: 'green' }}>{success}</p>}
+
           <div className="input-box">
-            <HiOutlineUser className='icon' />
+            <HiOutlineUser className="icon" />
             <input
               type="email"
-              placeholder='Email'
+              placeholder="Email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -56,10 +71,10 @@ const LogInForm = () => {
           </div>
 
           <div className="input-box">
-            <TbLockPassword className='icon' />
+            <TbLockPassword className="icon" />
             <input
               type="password"
-              placeholder='Password'
+              placeholder="Password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -67,16 +82,19 @@ const LogInForm = () => {
           </div>
 
           <div className="remember-forgot">
-            <label >
+            <label>
               <input type="checkbox" /> Remember me
             </label>
             <a href="#">Forgot password</a>
           </div>
-          <button type="submit">LogIn</button>
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
       </div>
     </div>
   );
 };
 
-export default LogInForm;
+export default LoginForm; // ✅ corrected export name matches component

@@ -1,113 +1,127 @@
-import React, { useState } from 'react';
-import axios from 'axios';
 import '../LogInForm/LogIn&RegisterForm.css';
+import React, { useState } from "react";
+import axios from "axios";
 
 
 const RegisterForm = () => {
-  const [FullName, setFullName] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('');
-  const [error, setError] = useState('');
+  const [FullName, setFullName] = useState("");         
+  const [email, setEmail] = useState("");                
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("");                     
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(password !== confirmPassword){
-        setError("Passwords do not match!");
-        return;
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setLoading(false);
+      return;
     }
-    setError('');
 
     try {
-      // STEP 1: Get CSRF cookie for Sanctum session auth
-      await axios.get('http://localhost:8000/sanctum/csrf-cookie', {withCredentials: true});
+      const response = await axios.post("http://localhost:8000/api/register", {
+        FullName,
+        Email: email,      
+        Password: password,  
+        RoleId: role,
+      });
 
-      // STEP 2: Send login request - use lowercase keys `email` & `password`
-      const response = await axios.post('http://localhost:8000/register', {
-        Email: username,      // Laravel expects `email`
-        Password: password,   // and `password`
-      }, {withCredentials: true});
-
-      console.log('Register successful:', response.data);
-      // Redirect or update UI after successful login here
-
+      console.log("Response:", response.data);
+      setSuccess("Registration successful! Please log in.");
     } catch (err) {
+      setLoading(false);
       if (err.response) {
-        console.error("Server responded with error:", err.response.status, err.response.data);
-      } else if (err.request) {
-        console.error("Request made but no response received:", err.request);
+        console.error("Error response:", err.response);
+        if (err.response.data.errors) {
+          // Show first error if exists
+          const firstKey = Object.keys(err.response.data.errors)[0];
+          setError(err.response.data.errors[firstKey][0]);
+        } else {
+          setError(err.response.data.message || "Registration failed");
+        }
       } else {
-        console.error("Error setting up request:", err.message);
+        setError("Something went wrong.");
       }
-      setError("Invalid credentials or server error.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className='BG'>
-      <div className='wrapper'>
-      <form onSubmit={handleSubmit}>
-        <h1>Register Employee</h1>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="BG">
+      <div className="wrapper">
+        <form onSubmit={handleSubmit}>
+          <h1>Register Employee</h1>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          {success && <p style={{ color: "green" }}>{success}</p>}
 
-        <div className="input-box">
-          <input
-            type="text"
-            placeholder='Employee s Full Name'
-            required
-            value={FullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-        </div>
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder="Employee's Full Name"
+              required
+              value={FullName}
+              onChange={(e) => setFullName(e.target.value)}
+            />
+          </div>
 
+          <div className="input-box">
+            <input
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-        <div className="input-box">
-          <input
-            type="text"
-            placeholder='Email'
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
+          <div className="input-box">
+            <input
+              type="password"
+              placeholder="Password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-        <div className="input-box">
-          <input
-            type="password"
-            placeholder='Password'
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+          <div className="input-box">
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
 
-        <div className="input-box">
-          <input
-            type="password"
-            placeholder='Confirm Password'
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
-
-        <div className="input-box">
-            <select value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    required>
-                <option value="" disabled>
-                    Select a role
-                </option>
-                <option value="admin">Admin</option>
-                <option value="employee">Employee</option>
-                <option value="guest">Guest</option>        
+          <div className="input-box">
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Select a role
+              </option>
+              <option value="1">Admin</option>
+              <option value="2">Employee</option>
+              <option value="3">Guest</option>
             </select>
-        </div>
+          </div>
 
-        <button type="submit">Register</button>
-      </form>
-    </div>
+          <button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
