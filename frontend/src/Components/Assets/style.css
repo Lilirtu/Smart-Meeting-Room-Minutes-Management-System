@@ -1,0 +1,359 @@
+/* Background and Layout */
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #f0f6ff;
+  padding: 30px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Navbar */
+.dashboard-navbar {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  padding: 18px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.dashboard-navbar h2 {
+  font-weight: bold;
+  font-size: 26px;
+}
+
+.icon-group .icon {
+  font-size: 1.8rem;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+/* Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 25px;
+  margin-top: 30px;
+  align-items: flex-start;
+}
+
+.left-column, .center-column, .right-column {
+  min-width: 280px;
+}
+
+/* Card Styling */
+.card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* Headings */
+.card h4, .card h5 {
+  color: #003366;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Buttons */
+button, .button {
+  background: linear-gradient(90deg, #007bff, #3399ff);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  width: 100%;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+button:hover, .button:hover {
+  background: linear-gradient(90deg, #0056b3, #007bff);
+}
+
+/* Alert Card */
+.alert-card {
+  background-color: #e0efff;
+  border-left: 5px solid #007bff;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  color: #003366;
+}
+
+.react-calendar {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 10px;
+}
+
+.react-calendar__tile--active {
+  background-color: #3399ff !important;
+  color: white !important;
+  border-radius: 8px;
+}
+
+.react-calendar__tile--now {
+  background-color: #ffda79 !important;
+  border-radius: 8px;
+}
+
+.react-calendar__navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.react-calendar__navigation__label {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  text-align: center;
+  padding: 0 5px;
+  display: block;
+  transition: color 0.3s ease;
+}
+
+.react-calendar__navigation__label:hover {
+  color: hsla(210, 84%, 64%, 0.868);
+  text-decoration: underline;
+  cursor: pointer;
+}
+/* Upcoming Events */
+.right-column .card ul {
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.right-column .card ul li {
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .left-column, .center-column, .right-column {
+    margin-bottom: 20px;
+  }
+}
+/* Fix Calendar Text Color */
+.react-calendar {
+  color: #003366;  /* Deep blue for all text inside the calendar */
+}
+
+.react-calendar__month-view__weekdays {
+  color: #003366;  /* Weekday letters (Mon, Tue, etc.) */
+  font-weight: 600;
+}
+
+.react-calendar__tile {
+  color: #003366;  /* Calendar day numbers */
+}
+
+/* Optional: Bold today’s date */
+.react-calendar__tile--now {
+  font-weight: bold;
+  color: #000 !important;
+  background-color: #ffeb99 !important;
+  border-radius: 8px;
+}
+/* Calendar Overall Text */
+.react-calendar {
+  color: #003366;  /* Dark blue for text */
+}
+
+/* Weekday Labels (MON, TUE...) */
+.react-calendar__month-view__weekdays {
+  color: #003366;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Day Numbers */
+.react-calendar__tile {
+  color: #003366;
+  font-weight: 500;
+}
+
+/* Today’s Date (Highlight) */
+.react-calendar__tile--now {
+  font-weight: bold;
+  color: #000 !important;
+  background-color: #ffeb99 !important;
+  border-radius: 8px;
+}
+
+/* Active Selected Date */
+.react-calendar__tile--active {
+  background-color: #3399ff !important;
+  color: white !important;
+  border-radius: 8px;
+}
+
+/* Toolbar (Month/Year Navigation) */
+.react-calendar__navigation {
+  background-color: #f0f0f0;  /* Light grey toolbar */
+  border-radius: 10px;
+  padding: 5px 0;
+  margin-bottom: 10px;
+}
+
+/* Toolbar Buttons (Prev, Next) */
+.react-calendar__navigation button {
+  background: none;
+  border: none;
+  color: #003366;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.react-calendar__navigation button:enabled:hover {
+  background-color: #d9e4f5;  /* Soft hover color */
+  border-radius: 6px;
+}
+/* Style for the Create Meeting Dropdown */
+.select-box {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #007bff;
+  background-color: #ffffff;
+  color: #003366;
+  font-weight: 500;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  appearance: none;  /* Remove default arrow in most browsers */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width='12' height='12' viewBox='0 0 20 20' fill='none' stroke='%23007bff' stroke-width='2'%3E%3Cpath d='M5 8l5 5 5-5'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+/* Optional: On Focus */
+.select-box:focus {
+  outline: none;
+  border-color: #3399ff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}
+/* General Button Styling */
+.button, button {
+  background: linear-gradient(90deg, #007bff, #3399ff);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  width: 100%;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;   /* 🔑 This creates spacing between buttons */
+}
+
+.button:hover, button:hover {
+  background: linear-gradient(90deg, #0056b3, #007bff);
+}
+
+/* Optional: Add specific margins for only these buttons */
+.room-button, .submit-work-button {
+  margin-bottom: 15px;
+}
+.custom-button {
+  background: linear-gradient(90deg, #007bff, #3399ff);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  width: 100%;
+  border-radius: 50px;  /* 🔑 Fully rounded pill shape */
+  font-weight: 600;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.custom-button:hover {
+  transform: translateY(-3px);  /* 🔑 3D hover lift */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(90deg, #0056b3, #007bff);
+}
+.deadline-alert {
+  background-color: #fff8e1;  /* Soft yellow */
+  border-left: 5px solid #ffc107;  /* Golden edge */
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-top: 15px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 500;
+  color: #5f4b00;  /* Deep gold/brown for text */
+}
+
+/* Optional: Icon styling inside alert */
+.deadline-alert-icon {
+  font-size: 22px;
+  color: #ffc107;
+  margin-right: 12px;
+}
+.deadline-alert {
+  background-color: #fff8e1;
+  border-left: 5px solid #ffc107;
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-top: 15px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 500;
+  color: #5f4b00;
+  position: relative;
+}
+
+/* Icon */
+.deadline-alert-icon {
+  font-size: 22px;
+  color: #ffc107;
+  margin-right: 12px;
+}
+
+/* Close Button */
+.close-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  color: #5f4b00;
+  cursor: pointer;
+  margin-left: 10px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.close-button:hover {
+  transform: scale(1.2);
+}
