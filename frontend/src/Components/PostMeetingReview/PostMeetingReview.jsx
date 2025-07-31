@@ -1,11 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./PostMeetingReview.css";
+import { useNavigate } from "react-router-dom";
 
 const PostMeetingReview = () => {
   const [meetingId, setMeetingId] = useState("");
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
+  const [pageLoading, setPageLoading] = useState(true); // for page loading state
+  const navigate = useNavigate();
+
+  // ✅ Authentication check (same logic from MinutesForm)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+
+    if (!token || !user) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      JSON.parse(user); // validate user data
+      setPageLoading(false);
+    } catch (err) {
+      console.error("Invalid user data:", err);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleSearch = async () => {
     if (!meetingId.trim()) {
@@ -14,12 +38,20 @@ const PostMeetingReview = () => {
       return;
     }
 
+    const token = localStorage.getItem("token"); // Retrieve token for auth
+
     try {
-      const response = await axios.get(`http://localhost:8000/api/post-meeting-review/${meetingId}`, {
-        withCredentials: true
-      });
+      // ✅ Send GET request with the token to authenticate the user
+      const response = await axios.get(
+        `http://localhost:8000/api/post-meeting-review/${meetingId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setData(response.data);
-      setError("");
+      setError(""); // Reset error message
     } catch (err) {
       setData(null);
       if (err.response && err.response.data && err.response.data.error) {
@@ -29,6 +61,8 @@ const PostMeetingReview = () => {
       }
     }
   };
+
+  if (pageLoading) return <p className="text-center text-secondary fs-5">Loading...</p>;
 
   return (
     <div className="review-container">

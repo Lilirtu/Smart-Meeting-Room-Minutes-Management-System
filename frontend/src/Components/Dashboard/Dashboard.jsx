@@ -9,6 +9,7 @@ import UpcomingEvents from './UpcomingEvents';
 import DeadlineAlert from './DeadlineAlert';
 import NotificationButton from './NotificationButton';
 import ProfileButton from './ProfileButton';
+import PostMeetingReviewButton from './PostMeetingReviewButton';  // Imported the new button
 
 // Icons
 import { FaDoorOpen, FaPaperPlane, FaSignOutAlt } from 'react-icons/fa';
@@ -105,6 +106,9 @@ const Dashboard = () => {
             Submit Work
           </button>
           <DeadlineAlert />
+
+          {/* Added PostMeetingReviewButton */}
+          <PostMeetingReviewButton />
         </div>
 
         <div className="center-column">
