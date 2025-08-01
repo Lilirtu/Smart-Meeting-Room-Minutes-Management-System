@@ -59,7 +59,7 @@ Route::apiResource('assignment', AssignmentController::class);
 Route::apiResource('groupassignment', GroupAssignmentController::class);
 
 
-Route::get('/post-meeting-review/{id}', [PostMeetingReviewController::class, 'show']);
+Route::middleware('auth:api')->get('/post-meeting-review/{id}', [PostMeetingReviewController::class, 'show']);
 
 Route::post('/register',[UsersController::class,'register']);
 Route::post('/login',[UsersController::class,'login']);
