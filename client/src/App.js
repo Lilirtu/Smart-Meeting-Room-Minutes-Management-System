@@ -1,13 +1,12 @@
 import React from "react";
-import MeetingRoomBooking from "./components/MeetingRoomBooking";
+import ActiveMeetingScreen from "./components/ActiveMeetingScreen";
 
 function App() {
   return (
     <div>
-      <MeetingRoomBooking />
+      <ActiveMeetingScreen />
     </div>
   );
 }
 
 export default App;
-
