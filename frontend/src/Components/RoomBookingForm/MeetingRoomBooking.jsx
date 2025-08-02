@@ -1,24 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "./MeetingRoomBooking.css";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const MeetingRoomBooking = () => {
-  const [status, setStatus] = useState("");
-  const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [attendees, setAttendees] = useState(""); // emails input
-  const [room, setRoom] = useState("");
-  const [rooms, setRooms] = useState([]); // fetched rooms
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true);
+const RoomsPage = () => {
+  const [loading, setLoading] = useState(true);
+  const [rooms, setRooms] = useState([]);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
-  // ✅ Authentication check
+  // ✅ Authentication check (same as your working example)
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
@@ -30,7 +21,6 @@ const MeetingRoomBooking = () => {
 
     try {
       JSON.parse(user); // validate user data
-      setPageLoading(false);
     } catch (err) {
       console.error("Invalid user data:", err);
       localStorage.removeItem("token");
@@ -39,7 +29,7 @@ const MeetingRoomBooking = () => {
     }
   }, [navigate]);
 
-  // ✅ Fetch available rooms from API
+  // ✅ Fetch Rooms from your API with Bearer Token
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -49,167 +39,39 @@ const MeetingRoomBooking = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setRooms(response.data); // expects array of rooms [{id, Name}]
+
+        // ✅ API returns an array directly
+        setRooms(response.data);
       } catch (err) {
         console.error("Error fetching rooms:", err);
+        setError("Failed to load rooms.");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchRooms();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess("");
-
-    const token = localStorage.getItem("token");
-
-    try {
-      // ✅ Convert attendees (emails) to User IDs
-      const emails = attendees.split(",").map((email) => email.trim());
-      const userResponse = await axios.post(
-        "http://localhost:8000/api/usersIds",
-        { emails },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const userIds = userResponse.data; // expected: [1, 2, 3]
-
-      // ✅ Submit booking request
-      const response = await axios.post(
-        "http://localhost:8000/api/booking",
-        {
-          Status: status,
-          Date: date,
-          StartTime: startTime,
-          EndTime: endTime,
-          UserIds: userIds,
-          RoomId: room,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("Response:", response.data);
-      setSuccess("Room booked successfully!");
-      setStatus("");
-      setDate("");
-      setStartTime("");
-      setEndTime("");
-      setAttendees("");
-      setRoom("");
-    } catch (err) {
-      if (err.response) {
-        console.error("Error response:", err.response);
-        if (err.response.data.errors) {
-          const firstKey = Object.keys(err.response.data.errors)[0];
-          setError(err.response.data.errors[firstKey][0]);
-        } else {
-          setError(err.response.data.message || "Booking failed");
-        }
-      } else {
-        setError("Something went wrong.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (pageLoading) return <p className="text-center text-secondary fs-5">Loading...</p>;
+  if (loading) return <p className="text-center py-4">Loading Rooms...</p>;
+  if (error) return <p className="text-danger text-center py-4">{error}</p>;
 
   return (
-    <div className="container">
-      <h1>Book a Meeting Room</h1>
-      <form onSubmit={handleSubmit} className="form">
-        <input
-          type="text"
-          name="status"
-          placeholder="Meeting Title"
-          required
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        />
-
-        <div>
-          <h5>Date:</h5>
-          <input
-            type="date"
-            name="date"
-            required
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <h5>From:</h5>
-          <input
-            type="time"
-            name="startTime"
-            required
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <h5>To:</h5>
-          <input
-            type="time"
-            name="endTime"
-            required
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-          />
-        </div>
-
-        <textarea
-  name="attendees"
-  placeholder="Attendees (comma-separated emails)"
-  value={attendees}
-  onChange={(e) => {
-    setAttendees(e.target.value);
-    e.target.style.height = 'auto';
-    e.target.style.height = e.target.scrollHeight + 'px';
-  }}
-  rows={1}
-/>
-
-
-        <select
-          name="room"
-          required
-          value={room}
-          onChange={(e) => setRoom(e.target.value)}
-        >
-          <option value="">Select Room</option>
-          {rooms.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.Name}
-            </option>
+    <div className="container py-4">
+      <h2 className="mb-4">Available Rooms</h2>
+      {rooms.length > 0 ? (
+        <ul className="list-group">
+          {rooms.map((room) => (
+            <li key={room.id} className="list-group-item">
+              {room.Name}
+            </li>
           ))}
-        </select>
-
-        <div className="button-group">
-          <button type="submit" disabled={loading}>
-            {loading ? "Booking..." : "Book Now"}
-          </button>
-          <button type="reset">Cancel</button>
-        </div>
-
-        {error && <p className="error">{error}</p>}
-        {success && <p className="success">{success}</p>}
-      </form>
+        </ul>
+      ) : (
+        <p>No rooms available.</p>
+      )}
     </div>
   );
 };
 
-export default MeetingRoomBooking;
+export default RoomsPage;
