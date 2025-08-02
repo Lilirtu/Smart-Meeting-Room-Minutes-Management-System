@@ -9,8 +9,8 @@ class Meeting extends Model
 {
     use HasFactory;
 
-    protected $table = 'Meeting';
-    protected $primaryKey = 'id';
+    protected $table = 'meeting'; // exact table name
+    protected $primaryKey = 'Id'; // match DB primary key
     public $timestamps = false;
 
     protected $fillable = [
@@ -29,7 +29,8 @@ class Meeting extends Model
         return $this->belongsTo(Reservation::class, 'ReservationId');
     }
 
-    public function attendees() {
+    public function attendees()
+    {
         return $this->hasMany(Attendance::class, 'MeetingId');
     }
 

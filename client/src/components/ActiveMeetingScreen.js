@@ -9,10 +9,8 @@ const ActiveMeetingScreen = () => {
   const [timer, setTimer] = useState(0);
   const [isTranscriptionOn, setIsTranscriptionOn] = useState(false);
 
-  // Change this to dynamic later (e.g., via route param or context)
-  const MEETING_ID = 1;
+  const MEETING_ID = 1; // replace with dynamic value later
 
-  /** Fetch meeting info from Laravel API */
   useEffect(() => {
     fetch(`http://localhost:8000/api/meetings/${MEETING_ID}/details`)
       .then((res) => {
@@ -29,7 +27,6 @@ const ActiveMeetingScreen = () => {
       });
   }, []);
 
-  /** Timer logic */
   useEffect(() => {
     let interval;
     if (isMeetingActive) {
@@ -44,13 +41,9 @@ const ActiveMeetingScreen = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  /** Handle Start/End Meeting API calls */
   const handleStartEnd = () => {
     if (isMeetingActive) {
-      // End meeting
-      fetch(`http://localhost:8000/api/meetings/${MEETING_ID}/end`, {
-        method: "PUT",
-      })
+      fetch(`http://localhost:8000/api/meetings/${MEETING_ID}/end`, { method: "PUT" })
         .then((res) => res.json())
         .then(() => {
           setIsMeetingActive(false);
@@ -58,10 +51,7 @@ const ActiveMeetingScreen = () => {
         })
         .catch(() => alert("Failed to end meeting"));
     } else {
-      // Start meeting
-      fetch(`http://localhost:8000/api/meetings/${MEETING_ID}/start`, {
-        method: "PUT",
-      })
+      fetch(`http://localhost:8000/api/meetings/${MEETING_ID}/start`, { method: "PUT" })
         .then((res) => res.json())
         .then(() => setIsMeetingActive(true))
         .catch(() => alert("Failed to start meeting"));
@@ -70,12 +60,10 @@ const ActiveMeetingScreen = () => {
 
   const toggleTranscription = () => setIsTranscriptionOn((prev) => !prev);
 
-  // Placeholder buttons
   const handleTakeNotes = () => alert("Open Minutes Template (Demo)");
   const handleShareScreen = () => alert("Share Screen (Demo)");
   const handleInviteParticipant = () => alert("Invite Participant (Demo)");
 
-  // Handle loading or error
   if (loading) return <p>Loading meeting info...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
 
@@ -83,21 +71,12 @@ const ActiveMeetingScreen = () => {
     <div className="active-meeting-container">
       <h2>Active Meeting</h2>
 
-      {/* Meeting Info */}
       <div className="meeting-info">
         <h3>{meeting.title}</h3>
-        <p>
-          <strong>Date:</strong> {meeting.date}
-        </p>
-        <p>
-          <strong>Start Time:</strong> {meeting.starttime || "Not started yet"}
-        </p>
-        <p>
-          <strong>End Time:</strong> {meeting.endtime || "Not ended yet"}
-        </p>
-        <p>
-          <strong>Attendees:</strong>
-        </p>
+        <p><strong>Date:</strong> {meeting.date}</p>
+        <p><strong>Start Time:</strong> {meeting.starttime || "Not started yet"}</p>
+        <p><strong>End Time:</strong> {meeting.endtime || "Not ended yet"}</p>
+        <p><strong>Attendees:</strong></p>
         <ul>
           {meeting.attendees &&
             meeting.attendees.map((person, index) => (
@@ -106,7 +85,6 @@ const ActiveMeetingScreen = () => {
         </ul>
       </div>
 
-      {/* Controls */}
       <div className="controls">
         <button
           className={isMeetingActive ? "end-btn" : "start-btn"}
@@ -131,7 +109,6 @@ const ActiveMeetingScreen = () => {
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="action-buttons">
         <button onClick={handleTakeNotes}>Take Notes</button>
         <button onClick={handleShareScreen}>Share Screen</button>
