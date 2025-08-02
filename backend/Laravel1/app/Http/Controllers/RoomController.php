@@ -2,42 +2,82 @@
 
 namespace App\Http\Controllers; // this file is in this folder
 
-use App\Models\Room; // import the user class to use it's methodes
-use Illuminate\Http\Request; // To be able to use the request to access the data sent with the request
+use App\Models\Room; // import the Room model to use its methods
+use Illuminate\Http\Request; // To be able to use the Request class for accessing data sent with the request
 
-class RoomController extends Controller {
+class RoomController extends Controller
+{
+    /**
+     * Create a new Room (CREATE)
+     */
+    public function store(Request $request)
+    {
+        // Validate input (optional but recommended)
+        $validated = $request->validate([
+            'Name' => 'required|string|max:100',
+            'Location' => 'required|string|max:100',
+            'Capacity' => 'required|integer'
+        ]);
 
-    //Create a new Room (CREATE)
-    public function store(Request $request){
-        $data = $request->all(); // get all the data in the request
-        $room = Room::create($data); // create a Roomfrom the class Room with the data info that we got from request
-        return response()->json($room, 201); // Return the new Room as JSON 
-        // and with the code 201 to say something was ceated. 200 is the one by default it just say ok all was good, 404 for not found, 500 server error
-        // response() is a methode in laravel that help create an http response to give back to the client
+        // Create a new Room using validated data
+        $room = Room::create($validated);
+
+        // Return the new Room as JSON with status code 201 (Created)
+        return response()->json($room, 201);
     }
 
-    //Get the Room (READ ALL)
-    public function index(){
-        return Room::all(); // return all Room as JSON. Default methode in laravel
+    /**
+     * Get all Rooms (READ ALL)
+     */
+    public function index()
+    {
+        // Return all Rooms as JSON
+        return Room::all();
     }
 
-    //Get a specific Room by Id (READ ONE)
-    public function show($Id){
-        return Room::findOrFail($Id); //return the found Room by it's id and if not found throws a 404 errors
+    /**
+     * Get a specific Room by Id (READ ONE)
+     */
+    public function show($Id)
+    {
+        // Find Room by ID or throw 404 error if not found
+        return Room::findOrFail($Id);
     }
 
-    //update a Room (UPDATE)
-    public function update(Request $request, $Id){
+    /**
+     * Update a Room (UPDATE)
+     */
+    public function update(Request $request, $Id)
+    {
+        // Find the Room or throw 404 error
         $room = Room::findOrFail($Id);
-        $room->update($request->all());
-        return response()->json($room); // by default 200
+
+        // Validate data before updating
+        $validated = $request->validate([
+            'Name' => 'sometimes|string|max:100',
+            'Location' => 'sometimes|string|max:100',
+            'Capacity' => 'sometimes|integer'
+        ]);
+
+        // Update Room with validated data
+        $room->update($validated);
+
+        // Return updated Room as JSON (default status 200)
+        return response()->json($room);
     }
 
-    //Delete a Room (DELETE)
-    public function destroy($Id){
+    /**
+     * Delete a Room (DELETE)
+     */
+    public function destroy($Id)
+    {
+        // Find Room by ID or throw 404 error
         $room = Room::findOrFail($Id);
-        $room>delete();
-        return response()->json(null,204); // 204 successfully deleted and nothing to return
-    }
 
-} 
+        // Delete the Room
+        $room->delete();
+
+        // Return 204 (No Content) to indicate successful deletion
+        return response()->json(null, 204);
+    }
+}

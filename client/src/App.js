@@ -1,13 +1,12 @@
 import React from "react";
-import MeetingRoomBooking from "./components/MeetingRoomBooking";
+import AdminPanel from "./components/AdminPanel/AdminPanel";
 
 function App() {
   return (
     <div>
-      <MeetingRoomBooking />
+      <AdminPanel />
     </div>
   );
 }
 
 export default App;
-
