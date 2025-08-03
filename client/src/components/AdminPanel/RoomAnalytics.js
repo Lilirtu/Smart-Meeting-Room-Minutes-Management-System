@@ -24,4 +24,5 @@ const RoomAnalytics = () => {
   );
 };
 
+
 export default RoomAnalytics;
