@@ -16,6 +16,7 @@ use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\DashboardConnectionController;
 use App\Http\Controllers\GroupAssignmentController;
 use App\Http\Controllers\PostMeetingReviewController;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +61,8 @@ Route::apiResource('groupassignment', GroupAssignmentController::class);
 
 
 Route::middleware('auth:api')->get('/post-meeting-review/{id}', [PostMeetingReviewController::class, 'show']);
+Route::get('DashboardConnection/{userId}', [DashboardConnectionController::class, 'show']);
+
 
 Route::post('/register',[UsersController::class,'register']);
 Route::post('/login',[UsersController::class,'login']);
