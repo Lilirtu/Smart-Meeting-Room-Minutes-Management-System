@@ -62,11 +62,15 @@ class RoomController extends Controller {
         return response()->json(['message' => 'Room not found'], 404);
     }
 
+    // Build full image URL if Image is set
+    $imageUrl = $room->Image ? asset('storage/' . $room->Image) : null;
+
     return response()->json([
         'id' => $room->id,
         'Name' => $room->Name,
         'Location' => $room->Location,
         'Capacity' => $room->Capacity,
+        'ImageUrl' => $imageUrl,  // <-- Add this line
         'features' => $room->features->map(function ($feature) {
             return [
                 'id' => $feature->id,
@@ -75,6 +79,7 @@ class RoomController extends Controller {
         })
     ]);
 }
+
 
 
     //update a Room (UPDATE)

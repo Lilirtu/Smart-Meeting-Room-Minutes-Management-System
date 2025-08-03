@@ -17,6 +17,7 @@ const RouterComponent = () =>{
             <Route path="/register" element={<RegisterForm/>} />
             <Route path="/dashboard" element={<Dashboard/>} />
             <Route path="/booking" element={<MeetingRoomBooking/>} />
+            <Route path="/booking/:roomId" element={<MeetingRoomBooking />} />
             <Route path="/minutes_of_meeting" element={<MinutesForm/>} />
             <Route path="/rooms" element={<RoomsPage/>} />
             <Route path="/rooms/:id" element={<RoomDetails />} />

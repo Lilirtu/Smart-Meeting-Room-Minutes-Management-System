@@ -42,11 +42,16 @@ const RoomDetails = () => {
       {/* Image Display */}
       {room.Image && (
         <img
-          src={room.ImageUrl} 
+          src={`http://localhost:8000/storage/${room.Image}`}
           alt={room.Name}
-          style={{ width: "100%", maxHeight: "400px", objectFit: "cover", borderRadius: "10px" }}
+          style={{
+            width: "100%",
+            maxHeight: "400px",
+            objectFit: "cover",
+            borderRadius: "10px",
+            marginBottom: "20px",
+          }}
         />
-
       )}
 
       <p><strong>Location:</strong> {room.Location}</p>
@@ -56,7 +61,7 @@ const RoomDetails = () => {
       {room.features && room.features.length > 0 ? (
         <ul>
           {room.features.map((f) => (
-            <li key={f.id}>{f.FeatureName || f.name}</li> // Adjust property based on your API
+            <li key={f.id}>{f.FeatureName || f.name}</li>
           ))}
         </ul>
       ) : (
@@ -64,10 +69,10 @@ const RoomDetails = () => {
       )}
 
       <button
-        className="btn btn-primary mt-3"
-        onClick={() => navigate("/rooms")}
+        className="btn btn-success mt-3"
+        onClick={() => navigate(`/booking/${room.id}`)}
       >
-        Back to Rooms
+        Book This Room
       </button>
     </div>
   );
