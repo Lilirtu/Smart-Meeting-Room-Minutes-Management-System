@@ -54,10 +54,13 @@ function CalendarWidget({ userId }) {
   // Format date in 'YYYY-MM-DD' format for API request
   const formatDate = (date) => {
     if (!date) return '';
+    // Convert to UTC (to avoid time zone issues) and format as 'YYYY-MM-DD'
     const d = new Date(date);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // Adjust to UTC
     return d.toISOString().split('T')[0]; // Format: 'YYYY-MM-DD'
   };
 
+  // UseEffect to fetch events whenever the selected date changes
   useEffect(() => {
     fetchEvents(selectedDate); // Fetch events when component loads or date changes
   }, [selectedDate]);
@@ -81,7 +84,7 @@ function CalendarWidget({ userId }) {
         background: '#fff',
         boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
       }}>
-        <h5>Events on {formattedDate || 'No date selected'}</h5>
+        <h5>Meetings on {formattedDate || 'No date selected'}</h5>
 
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: 'black' }}>{error}</p>} {/* Error displayed in black */}

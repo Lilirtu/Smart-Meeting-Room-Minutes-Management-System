@@ -20,7 +20,7 @@ use App\Http\Controllers\DashboardConnectionController;
 use App\Http\Controllers\GroupAssignmentController;
 use App\Http\Controllers\PostMeetingReviewController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\UpcomingEventsConnectionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -63,6 +63,7 @@ Route::apiResource('groupassignment', GroupAssignmentController::class);
 Route::middleware('auth:api')->get('/post-meeting-review/{id}', [PostMeetingReviewController::class, 'show']);
 Route::get('DashboardConnection/{userId}', [DashboardConnectionController::class, 'show']);
 
+Route::middleware('auth:api')->get('/upcoming-events', [UpcomingEventsConnectionController::class, 'getUpcomingEvents']);
 
 Route::post('/register',[UsersController::class,'register']);
 Route::post('/login',[UsersController::class,'login']);
