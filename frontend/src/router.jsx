@@ -6,6 +6,8 @@ import RegisterForm from './Components/RegisterForm/RegisterForm';
 import MeetingRoomBooking from './Components/RoomBookingForm/MeetingRoomBooking';
 import MinutesForm from './Components/MinutesForm/MinutesForm';
 import PostMeetingReview from './Components/PostMeetingReview/PostMeetingReview';
+import Notifications from './Components/Notifications/Notifications';
+
 
 const RouterComponent = () => {
   // Check if user is authenticated (token is available in localStorage)
@@ -23,6 +25,8 @@ const RouterComponent = () => {
       <Route path="/booking" element={isAuthenticated ? <MeetingRoomBooking /> : <Navigate to="/login" />} />
       <Route path="/minutes_of_meeting" element={isAuthenticated ? <MinutesForm /> : <Navigate to="/login" />} />
       <Route path="/post-meeting-review" element={isAuthenticated ? <PostMeetingReview /> : <Navigate to="/login" />} />
+      <Route path="/notifications" element={<Notifications />} />
+
     </Routes>
   );
 };

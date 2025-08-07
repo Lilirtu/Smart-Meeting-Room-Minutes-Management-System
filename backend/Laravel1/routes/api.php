@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 
-
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RoomController;
@@ -15,12 +14,14 @@ use App\Http\Controllers\MinutesOfMeetingController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationGetController;
+use App\Http\Controllers\NotificationPutController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\DashboardConnectionController;
 use App\Http\Controllers\GroupAssignmentController;
 use App\Http\Controllers\PostMeetingReviewController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UpcomingEventsConnectionController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -59,13 +60,20 @@ Route::apiResource('assignment', AssignmentController::class);
 
 Route::apiResource('groupassignment', GroupAssignmentController::class);
 
-
 Route::middleware('auth:api')->get('/post-meeting-review/{id}', [PostMeetingReviewController::class, 'show']);
 Route::get('DashboardConnection/{userId}', [DashboardConnectionController::class, 'show']);
 
 Route::middleware('auth:api')->get('/upcoming-events', [UpcomingEventsConnectionController::class, 'getUpcomingEvents']);
+Route::middleware('auth:api')->get('/notifications/unread', [NotificationGetController::class, 'getUnreadNotifications']);
+Route::middleware('auth:api')->put('/notifications/{id}/read', [NotificationGetController::class, 'markAsRead']);
 
-Route::post('/register',[UsersController::class,'register']);
-Route::post('/login',[UsersController::class,'login']);
-Route::get('/dashboard',[UsersController::class,'dashboard']);
-Route::post('/logout',[UsersController::class,'logout']);
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/notifications/search-users', [NotificationPutController::class, 'searchUsers']);
+    Route::post('/notifications/send', [NotificationPutController::class, 'sendNotification']);
+});
+
+Route::post('/register', [UsersController::class, 'register']);
+Route::post('/login', [UsersController::class, 'login']);
+Route::get('/dashboard', [UsersController::class, 'dashboard']);
+Route::post('/logout', [UsersController::class, 'logout']);
