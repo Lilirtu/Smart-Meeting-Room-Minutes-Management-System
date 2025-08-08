@@ -3,13 +3,15 @@
 namespace App\Models; // Where the file lives
 
 use Illuminate\Database\Eloquent\Model; // it make the class to be able to talk to the database and use functions
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Room extends Model { 
 
+    use HasFactory;
     protected $table = 'Room'; // let laravel know in which table we work to avoid confusion because laravel take the default exemple users for User and here we use Users so to not make confusion
     protected $primaryKey = 'id'; // same idea by default laravel take th ename of the primary key id not Id so to avoid errors and not found columns
     public $timestamps = false; // Laravel automatically expects and manages two timestamp columns: created_at and updated_at. If your table does not have these columns, you set this to false to prevent errors.
-    protected $fillable = ['Name', 'Location', 'Capacity']; // to let laravel know which columns can be filled because by defaults it blocks the assignment on all field 
+    protected $fillable = ['Name', 'Location', 'Capacity', 'Image']; // to let laravel know which columns can be filled because by defaults it blocks the assignment on all field 
 
     public function features() {
         return $this->belongsToMany(Feature::class, 'RoomFeature', 'RoomId', 'FeatureId');

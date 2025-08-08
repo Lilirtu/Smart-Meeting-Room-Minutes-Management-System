@@ -5,6 +5,8 @@ import LoginForm from './Components/LogInForm/LogInForm';
 import RegisterForm from './Components/RegisterForm/RegisterForm';
 import MeetingRoomBooking from './Components/RoomBookingForm/MeetingRoomBooking';
 import MinutesForm from './Components/MinutesForm/MinutesForm';
+import RoomsPage from './Components/RoomsPage/RoomsPage';
+import RoomDetails from "./Components/RoomDetails/RoomDetails";
 //import ForgotPassword from './Components/ForgotPassword/ForgotPassword'; TO DOOOO
 
 const RouterComponent = () =>{
@@ -15,8 +17,10 @@ const RouterComponent = () =>{
             <Route path="/register" element={<RegisterForm/>} />
             <Route path="/dashboard" element={<Dashboard/>} />
             <Route path="/booking" element={<MeetingRoomBooking/>} />
+            <Route path="/booking/:roomId" element={<MeetingRoomBooking />} />
             <Route path="/minutes_of_meeting" element={<MinutesForm/>} />
-
+            <Route path="/rooms" element={<RoomsPage/>} />
+            <Route path="/rooms/:id" element={<RoomDetails />} />
         </Routes>
     );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./MeetingRoomBooking.css";
 import axios from "axios";
 
@@ -8,17 +8,18 @@ const MeetingRoomBooking = () => {
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [attendees, setAttendees] = useState(""); // emails input
-  const [room, setRoom] = useState("");
-  const [rooms, setRooms] = useState([]); // fetched rooms
+  const [attendees, setAttendees] = useState("");
+  const [room, setRoom] = useState(""); // selected room id as string
+  const [rooms, setRooms] = useState([]); // list of rooms
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
   const navigate = useNavigate();
+  const { roomId } = useParams();
 
-  // ✅ Authentication check
+  // User & token validation on page load
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
@@ -29,7 +30,7 @@ const MeetingRoomBooking = () => {
     }
 
     try {
-      JSON.parse(user); // validate user data
+      JSON.parse(user);
       setPageLoading(false);
     } catch (err) {
       console.error("Invalid user data:", err);
@@ -39,7 +40,7 @@ const MeetingRoomBooking = () => {
     }
   }, [navigate]);
 
-  // ✅ Fetch available rooms from API
+  // Fetch rooms from API
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -49,7 +50,12 @@ const MeetingRoomBooking = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setRooms(response.data); // expects array of rooms [{id, Name}]
+        // Make sure id values are strings for select comparison
+        const roomsWithStringIds = response.data.map((r) => ({
+          ...r,
+          id: r.id.toString(),
+        }));
+        setRooms(roomsWithStringIds);
       } catch (err) {
         console.error("Error fetching rooms:", err);
       }
@@ -57,17 +63,44 @@ const MeetingRoomBooking = () => {
     fetchRooms();
   }, []);
 
+  // After rooms are loaded, if URL has roomId, set room state with string id
+  useEffect(() => {
+    if (roomId && rooms.length > 0) {
+      // Convert roomId to string to match select option values
+      const roomIdStr = roomId.toString();
+      // Check if roomId exists in rooms list before setting
+      if (rooms.some((r) => r.id === roomIdStr)) {
+        setRoom(roomIdStr);
+      }
+    }
+  }, [roomId, rooms]);
+
+  // Find the selected room object from rooms list by room id (string)
+  const selectedRoom = rooms.find((r) => r.id === room);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setSuccess("");
 
-    const token = localStorage.getItem("token");
+    if (!room) {
+      setError("Please select a room.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      // ✅ Convert attendees (emails) to User IDs
-      const emails = attendees.split(",").map((email) => email.trim());
+      const token = localStorage.getItem("token");
+      const emails = attendees.split(",").map((email) => email.trim()).filter(Boolean);
+
+      if (emails.length === 0) {
+        setError("Please enter at least one attendee email.");
+        setLoading(false);
+        return;
+      }
+
+      // Fetch user IDs for attendees
       const userResponse = await axios.post(
         "http://localhost:8000/api/usersIds",
         { emails },
@@ -78,9 +111,9 @@ const MeetingRoomBooking = () => {
         }
       );
 
-      const userIds = userResponse.data; // expected: [1, 2, 3]
+      const userIds = userResponse.data;
 
-      // ✅ Submit booking request
+      // Post booking request
       const response = await axios.post(
         "http://localhost:8000/api/booking",
         {
@@ -100,12 +133,13 @@ const MeetingRoomBooking = () => {
 
       console.log("Response:", response.data);
       setSuccess("Room booked successfully!");
+      // Reset form fields
       setStatus("");
       setDate("");
       setStartTime("");
       setEndTime("");
       setAttendees("");
-      setRoom("");
+      setRoom(""); // Clear room selection on success
     } catch (err) {
       if (err.response) {
         console.error("Error response:", err.response);
@@ -172,17 +206,16 @@ const MeetingRoomBooking = () => {
         </div>
 
         <textarea
-  name="attendees"
-  placeholder="Attendees (comma-separated emails)"
-  value={attendees}
-  onChange={(e) => {
-    setAttendees(e.target.value);
-    e.target.style.height = 'auto';
-    e.target.style.height = e.target.scrollHeight + 'px';
-  }}
-  rows={1}
-/>
-
+          name="attendees"
+          placeholder="Attendees (comma-separated emails)"
+          value={attendees}
+          onChange={(e) => {
+            setAttendees(e.target.value);
+            e.target.style.height = "auto";
+            e.target.style.height = e.target.scrollHeight + "px";
+          }}
+          rows={1}
+        />
 
         <select
           name="room"
@@ -198,11 +231,29 @@ const MeetingRoomBooking = () => {
           ))}
         </select>
 
+        {/* Show the selected room name below the select (optional) */}
+        {room && selectedRoom && (
+          <p>
+            Selected Room: <strong>{selectedRoom.Name}</strong>
+          </p>
+        )}
+
         <div className="button-group">
           <button type="submit" disabled={loading}>
             {loading ? "Booking..." : "Book Now"}
           </button>
-          <button type="reset">Cancel</button>
+          <button
+            type="button"
+            onClick={() => {
+              if (roomId) {
+                navigate(`/rooms/${roomId}`);
+              } else {
+                navigate("/dashboard");
+              }
+            }}
+          >
+            Cancel
+          </button>
         </div>
 
         {error && <p className="error">{error}</p>}

@@ -8,23 +8,82 @@ use Illuminate\Http\Request; // To be able to use the request to access the data
 class RoomController extends Controller {
 
     //Create a new Room (CREATE)
-    public function store(Request $request){
-        $data = $request->all(); // get all the data in the request
-        $room = Room::create($data); // create a Roomfrom the class Room with the data info that we got from request
-        return response()->json($room, 201); // Return the new Room as JSON 
-        // and with the code 201 to say something was ceated. 200 is the one by default it just say ok all was good, 404 for not found, 500 server error
-        // response() is a methode in laravel that help create an http response to give back to the client
+    public function store(Request $request)
+{
+    $request->validate([
+        'Name' => 'required|string|max:255',
+        'Location' => 'required|string|max:255',
+        'Capacity' => 'required|integer',
+        'Image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    $imagePath = null;
+
+    if ($request->hasFile('Image')) {
+        // Store image in 'public/rooms', get relative path
+        $imagePath = $request->file('Image')->store('rooms', 'public');
     }
+
+    $room = Room::create([
+        'Name' => $request->Name,
+        'Location' => $request->Location,
+        'Capacity' => $request->Capacity,
+        'Image' => $imagePath, // Save relative path
+    ]);
+
+    // Send full URL in response
+    $room->ImageUrl = $imagePath ? asset('storage/' . $imagePath) : null;
+
+    return response()->json($room);
+}
+
 
     //Get the Room (READ ALL)
     public function index(){
         return Room::all(); // return all Room as JSON. Default methode in laravel
     }
 
-    //Get a specific Room by Id (READ ONE)
-    public function show($Id){
-        return Room::findOrFail($Id); //return the found Room by it's id and if not found throws a 404 errors
+    public function index1()
+    {
+        $rooms = Room::select('id', 'name')->get();
+
+        return response()->json([
+            'status' => 200,
+            'rooms' => $rooms
+        ]);
     }
+
+
+
+    //Get a specific Room by Id (READ ONE)
+    public function show($id)
+{
+    $room = Room::with('features')->find($id);
+
+    if (!$room) {
+        return response()->json(['message' => 'Room not found'], 404);
+    }
+
+    // Build full image URL if Image is set
+    $imageUrl = $room->Image ? asset('storage/' . $room->Image) : null;
+
+    return response()->json([
+        'id' => $room->id,
+        'Name' => $room->Name,
+        'Location' => $room->Location,
+        'Capacity' => $room->Capacity,
+        'ImageUrl' => $imageUrl,  // ✅ full image URL for frontend
+        'features' => $room->features ? $room->features->map(function ($feature) {
+            return [
+                'id' => $feature->id,
+                'FeatureName' => $feature->FeatureName
+            ];
+        }) : [],
+    ]);
+}
+
+
+
 
     //update a Room (UPDATE)
     public function update(Request $request, $Id){
