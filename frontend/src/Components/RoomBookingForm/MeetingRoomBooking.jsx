@@ -9,16 +9,17 @@ const MeetingRoomBooking = () => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [attendees, setAttendees] = useState("");
-  const [room, setRoom] = useState("");
-  const [rooms, setRooms] = useState([]);
+  const [room, setRoom] = useState(""); // selected room id as string
+  const [rooms, setRooms] = useState([]); // list of rooms
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
   const navigate = useNavigate();
-  const { roomId } = useParams(); // Get roomId from URL
+  const { roomId } = useParams();
 
+  // User & token validation on page load
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
@@ -49,7 +50,12 @@ const MeetingRoomBooking = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setRooms(response.data);
+        // Make sure id values are strings for select comparison
+        const roomsWithStringIds = response.data.map((r) => ({
+          ...r,
+          id: r.id.toString(),
+        }));
+        setRooms(roomsWithStringIds);
       } catch (err) {
         console.error("Error fetching rooms:", err);
       }
@@ -57,12 +63,20 @@ const MeetingRoomBooking = () => {
     fetchRooms();
   }, []);
 
-  // Auto-select room from URL param
+  // After rooms are loaded, if URL has roomId, set room state with string id
   useEffect(() => {
-    if (roomId) {
-      setRoom(roomId);
+    if (roomId && rooms.length > 0) {
+      // Convert roomId to string to match select option values
+      const roomIdStr = roomId.toString();
+      // Check if roomId exists in rooms list before setting
+      if (rooms.some((r) => r.id === roomIdStr)) {
+        setRoom(roomIdStr);
+      }
     }
-  }, [roomId]);
+  }, [roomId, rooms]);
+
+  // Find the selected room object from rooms list by room id (string)
+  const selectedRoom = rooms.find((r) => r.id === room);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,10 +84,23 @@ const MeetingRoomBooking = () => {
     setError("");
     setSuccess("");
 
-    const token = localStorage.getItem("token");
+    if (!room) {
+      setError("Please select a room.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      const emails = attendees.split(",").map((email) => email.trim());
+      const token = localStorage.getItem("token");
+      const emails = attendees.split(",").map((email) => email.trim()).filter(Boolean);
+
+      if (emails.length === 0) {
+        setError("Please enter at least one attendee email.");
+        setLoading(false);
+        return;
+      }
+
+      // Fetch user IDs for attendees
       const userResponse = await axios.post(
         "http://localhost:8000/api/usersIds",
         { emails },
@@ -86,6 +113,7 @@ const MeetingRoomBooking = () => {
 
       const userIds = userResponse.data;
 
+      // Post booking request
       const response = await axios.post(
         "http://localhost:8000/api/booking",
         {
@@ -105,12 +133,13 @@ const MeetingRoomBooking = () => {
 
       console.log("Response:", response.data);
       setSuccess("Room booked successfully!");
+      // Reset form fields
       setStatus("");
       setDate("");
       setStartTime("");
       setEndTime("");
       setAttendees("");
-      setRoom("");
+      setRoom(""); // Clear room selection on success
     } catch (err) {
       if (err.response) {
         console.error("Error response:", err.response);
@@ -201,6 +230,13 @@ const MeetingRoomBooking = () => {
             </option>
           ))}
         </select>
+
+        {/* Show the selected room name below the select (optional) */}
+        {room && selectedRoom && (
+          <p>
+            Selected Room: <strong>{selectedRoom.Name}</strong>
+          </p>
+        )}
 
         <div className="button-group">
           <button type="submit" disabled={loading}>

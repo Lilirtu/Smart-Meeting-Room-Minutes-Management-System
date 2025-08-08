@@ -20,21 +20,23 @@ class RoomController extends Controller {
     $imagePath = null;
 
     if ($request->hasFile('Image')) {
-        $imagePath = $request->file('Image')->store('rooms', 'public'); 
+        // Store image in 'public/rooms', get relative path
+        $imagePath = $request->file('Image')->store('rooms', 'public');
     }
 
     $room = Room::create([
         'Name' => $request->Name,
         'Location' => $request->Location,
         'Capacity' => $request->Capacity,
-        'Image' => $imagePath, // save relative path
+        'Image' => $imagePath, // Save relative path
     ]);
 
-    // ✅ Add full image URL in the response
+    // Send full URL in response
     $room->ImageUrl = $imagePath ? asset('storage/' . $imagePath) : null;
 
     return response()->json($room);
 }
+
 
     //Get the Room (READ ALL)
     public function index(){
@@ -70,15 +72,16 @@ class RoomController extends Controller {
         'Name' => $room->Name,
         'Location' => $room->Location,
         'Capacity' => $room->Capacity,
-        'ImageUrl' => $imageUrl,  // <-- Add this line
-        'features' => $room->features->map(function ($feature) {
+        'ImageUrl' => $imageUrl,  // ✅ full image URL for frontend
+        'features' => $room->features ? $room->features->map(function ($feature) {
             return [
                 'id' => $feature->id,
-                'name' => $feature->FeatureName
+                'FeatureName' => $feature->FeatureName
             ];
-        })
+        }) : [],
     ]);
 }
+
 
 
 

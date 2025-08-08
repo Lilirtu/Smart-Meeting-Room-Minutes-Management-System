@@ -22,10 +22,10 @@ const RoomDetails = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        // ✅ TEMPORARY TEST IMAGE – remove this once it works
-        res.data.Image = "https://picsum.photos/seed/testimage/600/400";
-
-        setRoom(res.data);
+        setRoom({
+          ...res.data,
+          Image: res.data.ImageUrl,
+        });
         setLoading(false);
       })
       .catch(() => {
@@ -34,19 +34,30 @@ const RoomDetails = () => {
       });
   }, [id, navigate]);
 
+  const handleBooking = () => {
+    navigate(`/booking?id=${room.id}`);
+  };
+
   if (loading) return <p className="text-center fs-5">Loading Room...</p>;
   if (error) return <p className="text-center text-danger">{error}</p>;
   if (!room) return null;
 
   return (
     <div className="container py-4">
-      <button className="btn btn-secondary mb-3" onClick={() => navigate(-1)}>
-        ← Go Back
-      </button>
+
+      {/* 🔘 Buttons Side by Side */}
+      <div className="d-flex gap-2 mb-3">
+        <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+          ← Go Back
+        </button>
+
+        <button className="btn btn-success" onClick={handleBooking}>
+          Book Room
+        </button>
+      </div>
 
       <h2>{room.Name}</h2>
 
-      {/* ✅ IMAGE DISPLAY */}
       {room.Image && (
         <img
           src={room.Image}
@@ -73,10 +84,6 @@ const RoomDetails = () => {
       ) : (
         <p>No features listed.</p>
       )}
-
-      <button className="btn btn-primary mt-3" onClick={() => navigate("/rooms")}>
-        Back to Rooms
-      </button>
     </div>
   );
 };
