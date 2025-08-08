@@ -35,7 +35,7 @@ const RoomDetails = () => {
   }, [id, navigate]);
 
   const handleBooking = () => {
-    navigate(`/booking?id=${room.id}`);
+    navigate(`/booking/${room.id}`);
   };
 
   if (loading) return <p className="text-center fs-5">Loading Room...</p>;
@@ -45,7 +45,6 @@ const RoomDetails = () => {
   return (
     <div className="container py-4">
 
-      {/* 🔘 Buttons Side by Side */}
       <div className="d-flex gap-2 mb-3">
         <button className="btn btn-secondary" onClick={() => navigate(-1)}>
           ← Go Back
