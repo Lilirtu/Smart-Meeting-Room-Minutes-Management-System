@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('Name'); // Creates a VARCHAR column called 'Name'
             $table->string('Location'); // Creates a VARCHAR column 'Location' 
             $table->smallInteger('Capacity');
+            $table->string('Image')->nullable(); // For image path
         });
     }
 

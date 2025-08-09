@@ -35,6 +35,10 @@ Route::apiResource('role', RoleController::class);
 
 Route::apiResource('room', RoomController::class);
 Route::get('/roomIndex', [RoomController::class, 'index']);
+Route::get('/rooms', [RoomController::class, 'index1']);
+Route::get('/rooms/{id}', [RoomController::class, 'show']);
+
+
 
 Route::apiResource('feature', FeatureController::class);
 

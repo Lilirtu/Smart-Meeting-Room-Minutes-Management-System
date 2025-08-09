@@ -100,7 +100,8 @@ const Dashboard = () => {
       <div className="dashboard-grid">
         <div className="left-column">
           <CreateMeeting />
-          <button className="custom-button">
+          <button className="custom-button" 
+            onClick={() => navigate(`/rooms`)}>
             <FaDoorOpen style={{ marginRight: '8px' }} />
             Manage Rooms
           </button>
