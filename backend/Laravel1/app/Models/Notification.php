@@ -19,12 +19,12 @@ class Notification extends Model
 
     public function sender()
     {
-        return $this->belongsTo(User::class, 'SenderId');
+        return $this->belongsTo(Users::class, 'SenderId');
     }
 
     public function receiver()
     {
-        return $this->belongsTo(User::class, 'ReceivedId');
+        return $this->belongsTo(Users::class, 'ReceivedId');
     }
 
     public function assignments()

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
+import axios from 'axios';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
 
@@ -51,6 +52,7 @@ function CalendarWidget({ userId }) {
     setLoading(false);
   };
 
+
   // Format date in 'YYYY-MM-DD' format for API request
   const formatDate = (date) => {
     if (!date) return '';
@@ -67,6 +69,7 @@ function CalendarWidget({ userId }) {
 
   const formattedDate = formatDate(selectedDate);
 
+
   return (
     <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
       <div>
@@ -78,7 +81,7 @@ function CalendarWidget({ userId }) {
       </div>
 
       <div style={{
-        minWidth: '220px',
+        minWidth: '250px',
         padding: '15px',
         borderRadius: '8px',
         background: '#fff',
@@ -98,6 +101,7 @@ function CalendarWidget({ userId }) {
             <li>No meetings on this day</li>  
           )}
         </ul>
+
       </div>
     </div>
   );

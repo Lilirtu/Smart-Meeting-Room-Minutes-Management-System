@@ -10,9 +10,9 @@ class Meeting extends Model
     use HasFactory;
 
     protected $table = 'Meeting';
+
     protected $primaryKey = 'id';
     public $timestamps = false;
-
     protected $fillable = [
         'StartTime',
         'EndTime',
@@ -26,7 +26,7 @@ class Meeting extends Model
 
     public function reservation()
     {
-        return $this->belongsTo(Reservation::class, 'ReservationId');
+        return $this->hasOne(Reservation::class, 'MeetingId'); // optional
     }
 
     public function attendees() {
@@ -38,8 +38,8 @@ class Meeting extends Model
         return $this->belongsTo(MinutesOfMeeting::class, 'MinutesOfMeetingId');
     }
 
-    public function agenda()
+   public function agenda()
     {
-        return $this->belongsTo(Agenda::class, 'AgendaId');
+    return $this->hasOne(Agenda::class, 'MeetingId', 'id');
     }
 }

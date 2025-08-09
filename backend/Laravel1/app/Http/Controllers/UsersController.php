@@ -21,12 +21,12 @@ class UsersController extends Controller
             'Email' => 'required|email|unique:Users,Email',
             'Password' => 'required|string|min:6',
             'RoleId' => 'required|integer|exists:Role,id', // adjust if your Role table uses a different primary key
+
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors'=> $validator->errors()],422);
         }
-
         $user = Users::create([
             'FullName' => $request->FullName,
             'Email' => $request->Email,
@@ -35,7 +35,6 @@ class UsersController extends Controller
         ]);
 
         $token = JWTAuth::fromUser($user);
-
         return response()->json([
             'message' => 'User Registered Successfully',
             'user' => $user,
@@ -98,6 +97,7 @@ class UsersController extends Controller
             }
 
             JWTAuth::invalidate($token);
+
             return response()->json(['message'=> 'Logged Out Successfully'],200);
         } catch (JWTException $e) {
             return response()->json(['error'=> 'Failed to Logout'],500);

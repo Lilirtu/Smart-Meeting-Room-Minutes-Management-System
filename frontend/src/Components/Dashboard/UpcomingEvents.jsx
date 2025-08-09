@@ -61,6 +61,7 @@ function UpcomingEvents() {
           <li className="list-group-item text-muted">No deadlines available</li>
         )}
       </ul>
+
     </div>
   );
 }
