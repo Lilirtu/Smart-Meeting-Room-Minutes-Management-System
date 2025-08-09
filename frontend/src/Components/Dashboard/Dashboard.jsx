@@ -9,6 +9,7 @@ import UpcomingEvents from './UpcomingEvents';
 import DeadlineAlert from './DeadlineAlert';
 import NotificationButton from './NotificationButton';
 import ProfileButton from './ProfileButton';
+import PostMeetingReviewButton from './PostMeetingReviewButton';  // Imported the new button
 
 // Icons
 import { FaDoorOpen, FaPaperPlane, FaSignOutAlt } from 'react-icons/fa';
@@ -25,17 +26,17 @@ const Dashboard = () => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
-    // If no token or user, redirect to login
+    // If no token or user data, redirect to login
     if (!token || !userData) {
       navigate("/login");
       return;
     }
 
     try {
-      const parsedUser = JSON.parse(userData);
+      const parsedUser = JSON.parse(userData);  // Parse the user data from localStorage
       setUser(parsedUser);
 
-      // Optional: fetch fresh dashboard data from server
+      // Fetch fresh dashboard data from the server
       axios.get("http://localhost:8000/api/dashboard", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -47,6 +48,7 @@ const Dashboard = () => {
       })
       .catch((err) => {
         console.error("Invalid or expired token:", err);
+        // Clear stored data and redirect to login if token is invalid
         localStorage.removeItem("user");
         localStorage.removeItem("token");
         navigate("/login");
@@ -59,6 +61,7 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
+  // Handle logout process
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
 
@@ -72,6 +75,7 @@ const Dashboard = () => {
       console.warn("Logout failed or token expired.");
     }
 
+    // Clear the localStorage and redirect to login
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
@@ -105,10 +109,13 @@ const Dashboard = () => {
             Submit Work
           </button>
           <DeadlineAlert />
+
+          {/* Added PostMeetingReviewButton */}
+          <PostMeetingReviewButton />
         </div>
 
         <div className="center-column">
-          <CalendarWidget />
+          <CalendarWidget userId={user.id} />
         </div>
 
         <div className="right-column">
