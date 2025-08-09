@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// Custom Components
 import CreateMeeting from './CreateMeeting';
 import CalendarWidget from './CalendarWidget';
 import UpcomingEvents from './UpcomingEvents';
@@ -11,14 +10,10 @@ import NotificationButton from './NotificationButton';
 import ProfileButton from './ProfileButton';
 import PostMeetingReviewButton from './PostMeetingReviewButton';  // Imported the new button
 
-// Icons
 import { FaDoorOpen, FaPaperPlane, FaSignOutAlt } from 'react-icons/fa';
-
-// Styles
 import '../Assets/style.css';
 
 const Dashboard = () => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -26,12 +21,16 @@ const Dashboard = () => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
+<<<<<<< HEAD
     // If no token or user data, redirect to login
+=======
+>>>>>>> b097b11 (Test didn't work for dashboard connection)
     if (!token || !userData) {
       navigate("/login");
       return;
     }
 
+<<<<<<< HEAD
     try {
       const parsedUser = JSON.parse(userData);  // Parse the user data from localStorage
       setUser(parsedUser);
@@ -76,6 +75,15 @@ const Dashboard = () => {
     }
 
     // Clear the localStorage and redirect to login
+=======
+    // Set axios defaults for token
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+    setLoading(false);
+  }, [navigate]);
+
+  const handleLogout = () => {
+>>>>>>> b097b11 (Test didn't work for dashboard connection)
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
@@ -124,7 +132,6 @@ const Dashboard = () => {
       </div>
     </div>
   );
-
 };
 
 export default Dashboard;

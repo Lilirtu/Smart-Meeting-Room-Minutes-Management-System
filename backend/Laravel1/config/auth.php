@@ -12,6 +12,16 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+<<<<<<< HEAD
+=======
+
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+            'hash' => false,
+        ],
+    ],
+>>>>>>> b097b11 (Test didn't work for dashboard connection)
 
         'api' => [
             'driver' => 'jwt', // 🔁 CHANGED from 'token' or 'session' to 'jwt'

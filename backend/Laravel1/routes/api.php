@@ -63,9 +63,18 @@ Route::apiResource('groupassignment', GroupAssignmentController::class);
 Route::middleware('auth:api')->get('/post-meeting-review/{id}', [PostMeetingReviewController::class, 'show']);
 Route::get('DashboardConnection/{userId}', [DashboardConnectionController::class, 'show']);
 
+<<<<<<< HEAD
 Route::middleware('auth:api')->get('/upcoming-events', [UpcomingEventsConnectionController::class, 'getUpcomingEvents']);
 Route::middleware('auth:api')->get('/notifications/unread', [NotificationGetController::class, 'getUnreadNotifications']);
 Route::middleware('auth:api')->put('/notifications/{id}/read', [NotificationGetController::class, 'markAsRead']);
+=======
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user-meetings', [MeetingController::class, 'getUserMeetings']);
+    Route::get('/upcoming-meetings', [MeetingController::class, 'getUpcomingMeetingsForUser']);
+});
+
+
+>>>>>>> b097b11 (Test didn't work for dashboard connection)
 
 
 Route::middleware('auth:api')->group(function () {

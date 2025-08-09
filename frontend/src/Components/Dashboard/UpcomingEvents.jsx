@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function UpcomingEvents() {
   const [deadlines, setDeadlines] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
+<<<<<<< HEAD
     const fetchDeadlines = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -55,6 +56,41 @@ function UpcomingEvents() {
           deadlines.map((item, index) => (
             <li key={index} className="list-group-item">
               {index + 1}. {item.Description} (Due: {item.DueDate})
+=======
+    const fetchUpcoming = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://127.0.0.1:8000/api/upcoming-meetings", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setEvents(response.data);
+      } catch (error) {
+        console.error("Error fetching upcoming meetings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUpcoming();
+  }, []);
+
+  return (
+    <div className="card">
+      <h4>Upcoming Events</h4>
+      {loading ? (
+        <p>Loading...</p>
+      ) : events.length === 0 ? (
+        <p>No upcoming events</p>
+      ) : (
+        <ul className="list-group">
+          {events.map((event) => (
+            <li key={event.id} className="list-group-item">
+              {event.title} — {event.date} @ {event.start}
+              <br />
+              Room: {event.room} | Location: {event.location}
+>>>>>>> b097b11 (Test didn't work for dashboard connection)
             </li>
           ))
         ) : (
