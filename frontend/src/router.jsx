@@ -1,7 +1,7 @@
-// router.jsx
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
+// Pages / components (adjust paths as necessary)
 import Home from './Components/Home';
 import Dashboard from './Components/Dashboard/Dashboard';
 import LoginForm from './Components/LogInForm/LogInForm';
@@ -14,49 +14,32 @@ import RoomsPage from './Components/RoomsPage/RoomsPage';
 import RoomDetails from './Components/RoomDetails/RoomDetails';
 import SubmitAssignment from './Components/SubmitAssignment';
 import Profile from './Components/Profile/Profile';
-import RoomList from './Components/AdminPanel/RoomList';
-import RoomForm from './Components/AdminPanel/RoomForm';
 
-// ------- Route guards -------
+/** Guards */
 function RequireAuth({ children }) {
   const location = useLocation();
   const token = localStorage.getItem('token');
-  if (!token) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
+  if (!token) return <Navigate to="/login" replace state={{ from: location }} />;
   return children;
 }
 
 function RequireAdmin({ children }) {
   const location = useLocation();
   const token = localStorage.getItem('token');
+  const roleId =
+    localStorage.getItem('RoleId') !== null
+      ? Number(localStorage.getItem('RoleId'))
+      : localStorage.getItem('roleId') !== null
+      ? Number(localStorage.getItem('roleId'))
+      : null;
 
-  // Read RoleId from the stored "user" object
-  let roleId = null;
-  try {
-    const raw = localStorage.getItem('user');
-    if (raw) {
-      const u = JSON.parse(raw);
-      roleId =
-        u?.RoleId ??
-        u?.roleId ??
-        (typeof u?.role === 'number' ? u.role : null) ??
-        (localStorage.getItem('RoleId') ? Number(localStorage.getItem('RoleId')) : null);
-    }
-  } catch {
-    // ignore parse errors; roleId stays null
-  }
-
-  const isAdmin = !!token && Number(roleId) === 1; // 1 = Admin
-
-  if (!isAdmin) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
+  const isAdmin = !!token && roleId === 1; // 1 = Admin
+  if (!isAdmin) return <Navigate to="/login" replace state={{ from: location }} />;
   return children;
 }
 
-// ------- Router component -------
-export default function RouterComponent() {
+/** Router */
+export default function AppRouter() {
   return (
     <Routes>
       {/* Public */}
@@ -64,7 +47,7 @@ export default function RouterComponent() {
       <Route path="/login" element={<LoginForm />} />
       <Route path="/register" element={<RegisterForm />} />
 
-      {/* Auth-only */}
+      {/* Authenticated core */}
       <Route
         path="/dashboard"
         element={
@@ -73,8 +56,46 @@ export default function RouterComponent() {
           </RequireAuth>
         }
       />
+
+      {/* Rooms list + aliases (for your existing buttons/links) */}
       <Route
-        path="/booking"
+        path="/rooms"
+        element={
+          <RequireAuth>
+            <RoomsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/room-list"
+        element={
+          <RequireAuth>
+            <RoomsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/room-management"
+        element={
+          <RequireAuth>
+            <RoomsPage />
+          </RequireAuth>
+        }
+      />
+
+      {/* Room details (expects /rooms/:id) */}
+      <Route
+        path="/rooms/:id"
+        element={
+          <RequireAuth>
+            <RoomDetails />
+          </RequireAuth>
+        }
+      />
+
+      {/* Booking: keep your original and an alias used by the details page */}
+      <Route
+        path="/book-room"
         element={
           <RequireAuth>
             <MeetingRoomBooking />
@@ -82,13 +103,15 @@ export default function RouterComponent() {
         }
       />
       <Route
-        path="/booking/:roomId"
+        path="/booking/:id"
         element={
           <RequireAuth>
             <MeetingRoomBooking />
           </RequireAuth>
         }
       />
+
+      {/* Minutes & reviews */}
       <Route
         path="/minutes"
         element={
@@ -105,6 +128,8 @@ export default function RouterComponent() {
           </RequireAuth>
         }
       />
+
+      {/* Notifications */}
       <Route
         path="/notifications"
         element={
@@ -114,43 +139,35 @@ export default function RouterComponent() {
         }
       />
 
-      {/* Rooms (left public as you had) */}
-      <Route path="/rooms" element={<RoomsPage />} />
-      <Route path="/rooms/:id" element={<RoomDetails />} />
-
-      {/* Misc */}
-      <Route path="/submit-assignment" element={<SubmitAssignment />} />
-
-    
-
-      {/* Admin tab routes */}
+      {/* Submit assignment (hyphen + no-hyphen) */}
       <Route
-        path="/room-list"
+        path="/submit-assignment"
         element={
-          <RequireAdmin>
-            <RoomList />
-          </RequireAdmin>
+          <RequireAuth>
+            <SubmitAssignment />
+          </RequireAuth>
         }
       />
       <Route
-        path="/add-room"
+        path="/submitassignment"
         element={
-          <RequireAdmin>
-            <RoomForm />
-          </RequireAdmin>
+          <RequireAuth>
+            <SubmitAssignment />
+          </RequireAuth>
         }
       />
+
+      {/* Profile */}
       <Route
         path="/profile"
         element={
-         <RequireAuth>
-           <Profile />
-        </RequireAuth>
+          <RequireAuth>
+            <Profile />
+          </RequireAuth>
         }
       />
 
-
-      {/* Default redirect */}
+      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

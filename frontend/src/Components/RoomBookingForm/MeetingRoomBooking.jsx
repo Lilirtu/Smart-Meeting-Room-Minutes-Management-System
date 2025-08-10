@@ -3,79 +3,90 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./MeetingRoomBooking.css";
 import axios from "axios";
 
+const API_BASE = "http://localhost:8000/api";
+
 const MeetingRoomBooking = () => {
+  const navigate = useNavigate();
+
+  // accept either /booking/:id or /booking/:roomId
+  const { id: idParam, roomId: roomIdParam } = useParams();
+  const preselectId = (idParam ?? roomIdParam) ? String(idParam ?? roomIdParam) : null;
+
   const [status, setStatus] = useState("");
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [attendees, setAttendees] = useState("");
-  const [room, setRoom] = useState(""); // selected room id as string
-  const [rooms, setRooms] = useState([]); // list of rooms
+
+  const [room, setRoom] = useState("");      // selected room id (string)
+  const [rooms, setRooms] = useState([]);    // list of rooms
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
-  const navigate = useNavigate();
-  const { roomId } = useParams();
-
-  // User & token validation on page load
+  // Validate token/user on load
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
-
     if (!token || !user) {
       navigate("/login");
       return;
     }
-
     try {
       JSON.parse(user);
       setPageLoading(false);
-    } catch (err) {
-      console.error("Invalid user data:", err);
+    } catch {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       navigate("/login");
     }
   }, [navigate]);
 
-  // Fetch rooms from API
+  // Fetch rooms
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8000/api/roomIndex", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const res = await axios.get(`${API_BASE}/roomIndex`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        // Make sure id values are strings for select comparison
-        const roomsWithStringIds = response.data.map((r) => ({
+
+        // Handle both array and { data: [...] } payloads
+        const payload = res.data;
+        const rawList = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+
+        // Normalize IDs and names
+        const list = rawList.map((r) => ({
           ...r,
-          id: r.id.toString(),
+          id: String(r.id ?? r.Id ?? r.ID),
+          Name: r.Name ?? r.name ?? `Room ${r.id ?? r.Id ?? r.ID}`,
         }));
-        setRooms(roomsWithStringIds);
-      } catch (err) {
-        console.error("Error fetching rooms:", err);
+
+        setRooms(list);
+
+        // Preselect if URL had an id and it exists
+        if (preselectId && list.some((x) => x.id === preselectId)) {
+          setRoom(preselectId);
+        }
+        if (!list.length) {
+          setError("No rooms found. Please add rooms or check your API endpoint.");
+        }
+      } catch (e) {
+        console.error("Error fetching rooms:", e);
+        setError(
+          e?.response?.data?.message ||
+            "Failed to load rooms. Check your token and API (/api/roomIndex)."
+        );
       }
     };
     fetchRooms();
-  }, []);
+  }, [preselectId]);
 
-  // After rooms are loaded, if URL has roomId, set room state with string id
-  useEffect(() => {
-    if (roomId && rooms.length > 0) {
-      // Convert roomId to string to match select option values
-      const roomIdStr = roomId.toString();
-      // Check if roomId exists in rooms list before setting
-      if (rooms.some((r) => r.id === roomIdStr)) {
-        setRoom(roomIdStr);
-      }
-    }
-  }, [roomId, rooms]);
-
-  // Find the selected room object from rooms list by room id (string)
   const selectedRoom = rooms.find((r) => r.id === room);
 
   const handleSubmit = async (e) => {
@@ -92,76 +103,65 @@ const MeetingRoomBooking = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const emails = attendees.split(",").map((email) => email.trim()).filter(Boolean);
+      const emails = attendees
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
 
-      if (emails.length === 0) {
+      if (!emails.length) {
         setError("Please enter at least one attendee email.");
         setLoading(false);
         return;
       }
 
-      // Fetch user IDs for attendees
-      const userResponse = await axios.post(
-        "http://localhost:8000/api/usersIds",
+      // Resolve attendee user IDs
+      const userRes = await axios.post(
+        `${API_BASE}/usersIds`,
         { emails },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+      const userIds = userRes.data;
 
-      const userIds = userResponse.data;
-
-      // Post booking request
-      const response = await axios.post(
-        "http://localhost:8000/api/booking",
+      // Create booking
+      await axios.post(
+        `${API_BASE}/booking`,
         {
           Status: status,
-          Date: date,
-          StartTime: startTime,
-          EndTime: endTime,
+          Date: date,          // YYYY-MM-DD
+          StartTime: startTime, // HH:mm
+          EndTime: endTime,     // HH:mm
           UserIds: userIds,
-          RoomId: room,
+          RoomId: Number(room), // backend likely expects a number
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log("Response:", response.data);
       setSuccess("Room booked successfully!");
-      // Reset form fields
       setStatus("");
       setDate("");
       setStartTime("");
       setEndTime("");
       setAttendees("");
-      setRoom(""); // Clear room selection on success
+      setRoom("");
     } catch (err) {
-      if (err.response) {
-        console.error("Error response:", err.response);
-        if (err.response.data.errors) {
-          const firstKey = Object.keys(err.response.data.errors)[0];
-          setError(err.response.data.errors[firstKey][0]);
-        } else {
-          setError(err.response.data.message || "Booking failed");
-        }
+      console.error("Booking error:", err?.response || err);
+      if (err?.response?.data?.errors) {
+        const firstKey = Object.keys(err.response.data.errors)[0];
+        setError(err.response.data.errors[firstKey][0]);
       } else {
-        setError("Something went wrong.");
+        setError(err?.response?.data?.message || "Booking failed.");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  if (pageLoading) return <p className="text-center text-secondary fs-5">Loading...</p>;
+  if (pageLoading) return <p className="text-center text-secondary fs-5">Loading…</p>;
 
   return (
     <div className="container">
       <h1>Book a Meeting Room</h1>
+
       <form onSubmit={handleSubmit} className="form">
         <input
           type="text"
@@ -217,21 +217,22 @@ const MeetingRoomBooking = () => {
           rows={1}
         />
 
+        <label style={{ marginTop: 8, marginBottom: 4 }}>Room</label>
         <select
           name="room"
           required
           value={room}
           onChange={(e) => setRoom(e.target.value)}
+          disabled={!rooms.length}
         >
-          <option value="">Select Room</option>
+          <option value="">{rooms.length ? "Select Room" : "No rooms available"}</option>
           {rooms.map((r) => (
             <option key={r.id} value={r.id}>
-              {r.Name}
+              {r.Name} (ID {r.id})
             </option>
           ))}
         </select>
 
-        {/* Show the selected room name below the select (optional) */}
         {room && selectedRoom && (
           <p>
             Selected Room: <strong>{selectedRoom.Name}</strong>
@@ -239,17 +240,14 @@ const MeetingRoomBooking = () => {
         )}
 
         <div className="button-group">
-          <button type="submit" disabled={loading}>
+          <button type="submit" disabled={loading || !rooms.length}>
             {loading ? "Booking..." : "Book Now"}
           </button>
           <button
             type="button"
             onClick={() => {
-              if (roomId) {
-                navigate(`/rooms/${roomId}`);
-              } else {
-                navigate("/dashboard");
-              }
+              if (preselectId) navigate(`/rooms/${preselectId}`);
+              else navigate("/dashboard");
             }}
           >
             Cancel
