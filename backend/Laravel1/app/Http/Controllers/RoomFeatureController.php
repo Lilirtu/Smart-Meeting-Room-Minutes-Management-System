@@ -1,43 +1,45 @@
 <?php
 
-namespace App\Http\Controllers; // this file is in this folder
+namespace App\Http\Controllers;
 
-use App\Models\RoomFeature; // import the RoomFeature class to use it's methodes
-use Illuminate\Http\Request; // To be able to use the request to access the data sent with the request
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class RoomFeatureController extends Controller {
+class RoomFeatureController extends Controller
+{
+    // GET /api/room/{roomId}/features
+    public function listForRoom($roomId)
+    {
+        $rows = DB::table('RoomFeature as rf')
+            ->join('Feature as f', 'rf.FeatureId', '=', 'f.id')
+            ->where('rf.RoomId', $roomId)
+            ->select('rf.FeatureId', 'f.FeatureName')
+            ->orderBy('f.FeatureName')
+            ->get();
 
-    //Create a new RoomFeature (CREATE)
-    public function store(Request $request){
-        $data = $request->all(); // get all the data in the request
-        $room_feature = RoomFeature::create($data); // create a RoomFeature from the class RoomFeature with the data info that we got from request
-        return response()->json($room_feature, 201); // Return the new RoomFeature as JSON 
-        // and with the code 201 to say something was ceated. 200 is the one by default it just say ok all was good, 404 for not found, 500 server error
-        // response() is a methode in laravel that help create an http response to give back to the client
+        return [
+            'RoomId'     => (int)$roomId,
+            'FeatureIds' => $rows->pluck('FeatureId')->map(fn($v) => (int)$v)->values(),
+            'Features'   => $rows->pluck('FeatureName')->values(),
+        ];
     }
 
-    //Get the RoomFeature (READ ALL)
-    public function index(){
-        return RoomFeature::all(); // return all RoomFeature as JSON. Default methode in laravel
-    }
+    // POST /api/room/{roomId}/features
+    // body: { "FeatureIds": [1,2,3] }
+    public function syncForRoom($roomId, Request $req)
+    {
+        $data = $req->validate([
+            'FeatureIds'   => 'array',
+            'FeatureIds.*' => 'integer|exists:Feature,id',
+        ]);
 
-    //Get a specific RoomFeatureby Id (READ ONE)
-    public function show($Id){
-        return RoomFeature::findOrFail($Id); //return the found RoomFeature by it's id and if not found throws a 404 errors
-    }
+        DB::table('RoomFeature')->where('RoomId', $roomId)->delete();
 
-    //update a RoomFeature (UPDATE)
-    public function update(Request $request, $Id){
-        $room_feature= RoomFeature::findOrFail($Id);
-        $room_feature->update($request->all());
-        return response()->json($room_feature); // by default 200
-    }
+        if (!empty($data['FeatureIds'])) {
+            $rows = array_map(fn($fid) => ['RoomId' => (int)$roomId, 'FeatureId' => (int)$fid], $data['FeatureIds']);
+            DB::table('RoomFeature')->insert($rows);
+        }
 
-    //Delete a RoomFeature (DELETE)
-    public function destroy($Id){
-        $room_feature = RoomFeature::findOrFail($Id);
-        $room_feature->delete();
-        return response()->json(null,204); // 204 successfully deleted and nothing to return
+        return response()->json(['ok' => true]);
     }
-
-} 
+}

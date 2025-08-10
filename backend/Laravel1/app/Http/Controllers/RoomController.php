@@ -1,102 +1,137 @@
 <?php
 
-namespace App\Http\Controllers; // this file is in this folder
+namespace App\Http\Controllers;
 
-use App\Models\Room; // import the user class to use it's methodes
-use Illuminate\Http\Request; // To be able to use the request to access the data sent with the request
+use App\Models\Room;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
-class RoomController extends Controller {
-
-    //Create a new Room (CREATE)
-    public function store(Request $request)
+class RoomController extends Controller
 {
-    $request->validate([
-        'Name' => 'required|string|max:255',
-        'Location' => 'required|string|max:255',
-        'Capacity' => 'required|integer',
-        'Image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
-
-    $imagePath = null;
-
-    if ($request->hasFile('Image')) {
-        // Store image in 'public/rooms', get relative path
-        $imagePath = $request->file('Image')->store('rooms', 'public');
-    }
-
-    $room = Room::create([
-        'Name' => $request->Name,
-        'Location' => $request->Location,
-        'Capacity' => $request->Capacity,
-        'Image' => $imagePath, // Save relative path
-    ]);
-
-    // Send full URL in response
-    $room->ImageUrl = $imagePath ? asset('storage/' . $imagePath) : null;
-
-    return response()->json($room);
-}
-
-
-    //Get the Room (READ ALL)
-    public function index(){
-        return Room::all(); // return all Room as JSON. Default methode in laravel
-    }
-
-    public function index1()
+    // GET /api/room
+    public function index()
     {
-        $rooms = Room::select('id', 'name')->get();
+        // 1) Get all rooms
+        $rooms = Room::select('id', 'Name', 'Location', 'Capacity')->get();
 
-        return response()->json([
-            'status' => 200,
-            'rooms' => $rooms
-        ]);
-    }
+        // 2) Build features per room (names + ids)
+        $featureRows = DB::table('RoomFeature as rf')
+            ->join('Feature as f', 'rf.FeatureId', '=', 'f.id')
+            ->select('rf.RoomId', 'rf.FeatureId', 'f.FeatureName')
+            ->get();
 
+        $featuresByRoom = [];
+        foreach ($featureRows as $row) {
+            $rid = (int)$row->RoomId;
+            $featuresByRoom[$rid]['names'][] = $row->FeatureName;
+            $featuresByRoom[$rid]['ids'][]   = (int)$row->FeatureId;
+        }
 
+        // 3) Return PascalCase + Features/FeatureIds
+        return $rooms->map(function ($r) use ($featuresByRoom) {
+            $rid = (int)$r->id;
+            $f   = $featuresByRoom[$rid] ?? ['names' => [], 'ids' => []];
 
-    //Get a specific Room by Id (READ ONE)
-    public function show($id)
-{
-    $room = Room::with('features')->find($id);
-
-    if (!$room) {
-        return response()->json(['message' => 'Room not found'], 404);
-    }
-
-    // Build full image URL if Image is set
-    $imageUrl = $room->Image ? asset('storage/' . $room->Image) : null;
-
-    return response()->json([
-        'id' => $room->id,
-        'Name' => $room->Name,
-        'Location' => $room->Location,
-        'Capacity' => $room->Capacity,
-        'ImageUrl' => $imageUrl,  // ✅ full image URL for frontend
-        'features' => $room->features ? $room->features->map(function ($feature) {
             return [
-                'id' => $feature->id,
-                'FeatureName' => $feature->FeatureName
+                'Id'         => $rid,
+                'Name'       => $r->Name,
+                'Location'   => $r->Location,
+                'Capacity'   => (int)$r->Capacity,
+                'Features'   => array_values($f['names']),
+                'FeatureIds' => array_values($f['ids']),
             ];
-        }) : [],
-    ]);
+        });
+    }
+
+    // GET /api/room/{room}
+    public function show(Room $room)
+    {
+        $rid = (int)$room->id;
+
+        $featureRows = DB::table('RoomFeature as rf')
+            ->join('Feature as f', 'rf.FeatureId', '=', 'f.id')
+            ->where('rf.RoomId', $rid)
+            ->select('rf.FeatureId', 'f.FeatureName')
+            ->get();
+
+        return [
+            'Id'         => $rid,
+            'Name'       => $room->Name,
+            'Location'   => $room->Location,
+            'Capacity'   => (int)$room->Capacity,
+            'Features'   => $featureRows->pluck('FeatureName')->values(),
+            'FeatureIds' => $featureRows->pluck('FeatureId')->map(fn($v) => (int)$v)->values(),
+        ];
+    }
+
+    // POST /api/room
+    public function store(Request $req)
+    {
+        $data = $req->validate([
+            'Name'         => 'required|string|max:255',
+            'Location'     => 'required|string|max:255',
+            'Capacity'     => 'required|integer|min:1',
+            'FeatureIds'   => 'array',
+            'FeatureIds.*' => 'integer|exists:Feature,id',
+        ]);
+
+        $room = new Room();
+        $room->Name     = $data['Name'];
+        $room->Location = $data['Location'];
+        $room->Capacity = $data['Capacity'];
+        $room->save();
+
+        if (!empty($data['FeatureIds'])) {
+            $rows = array_map(fn($fid) => ['RoomId' => $room->id, 'FeatureId' => (int)$fid], $data['FeatureIds']);
+            DB::table('RoomFeature')->insert($rows);
+        }
+
+        return response()->json(['Id' => (int)$room->id], 201);
+    }
+
+    // PUT /api/room/{room}
+    public function update(Request $req, Room $room)
+    {
+        $data = $req->validate([
+            'Name'         => 'required|string|max:255',
+            'Location'     => 'required|string|max:255',
+            'Capacity'     => 'required|integer|min:1',
+            'FeatureIds'   => 'array',
+            'FeatureIds.*' => 'integer|exists:Feature,id',
+        ]);
+
+        $room->Name     = $data['Name'];
+        $room->Location = $data['Location'];
+        $room->Capacity = $data['Capacity'];
+        $room->save();
+
+        if (array_key_exists('FeatureIds', $data)) {
+            DB::table('RoomFeature')->where('RoomId', $room->id)->delete();
+            if (!empty($data['FeatureIds'])) {
+                $rows = array_map(fn($fid) => ['RoomId' => $room->id, 'FeatureId' => (int)$fid], $data['FeatureIds']);
+                DB::table('RoomFeature')->insert($rows);
+            }
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    // DELETE /api/room/{room}
+    public function destroy(Room $room)
+    {
+        DB::table('RoomFeature')->where('RoomId', $room->id)->delete();
+        $room->delete();
+        return response()->json(['ok' => true]);
+    }
+
+    // Optional: simple stats without Status
+    public function stats()
+    {
+        $total = Room::count();
+        return [
+            'totalRooms'     => $total,
+            'bookedRooms'    => 0,
+            'availableRooms' => $total,
+        ];
+    }
 }
-
-
-
-
-    //update a Room (UPDATE)
-    public function update(Request $request, $Id){
-        $room = Room::findOrFail($Id);
-        $room->update($request->all());
-        return response()->json($room); // by default 200
-    }
-
-    //Delete a Room (DELETE)
-    public function destroy($Id){
-        $room = Room::findOrFail($Id);
-        $room>delete();
-        return response()->json(null,204); // 204 successfully deleted and nothing to return
-    }
-
-} 

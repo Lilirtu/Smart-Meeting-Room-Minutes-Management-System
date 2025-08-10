@@ -7,7 +7,6 @@ use App\Models\Reservation;
 use App\Models\Meeting;
 use App\Models\Attendance;
 
-
 class ReservationController extends Controller
 {
     public function index() { return Reservation::all(); }
@@ -28,7 +27,7 @@ class ReservationController extends Controller
         'UserIds.*' => 'integer|exists:Users,id',
         'RoomId' => 'required|exists:Room,id'
     ]);
-    \Log::info('Booking request data:', $request->all());
+    logger()->info('Booking request data:', $request->all());
 
     DB::beginTransaction();
     try {
@@ -89,7 +88,7 @@ class ReservationController extends Controller
         ], 201);
 
     } catch (\Exception $e) {
-        \Log::error('Booking error: ' . $e->getMessage());
+        logger()->error('Booking error: '.$e->getMessage());
         DB::rollBack();
         return response()->json([
             'message' => 'Booking failed',

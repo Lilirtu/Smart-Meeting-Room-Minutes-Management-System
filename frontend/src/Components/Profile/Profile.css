@@ -1,0 +1,91 @@
+/* Make page full height */
+.profile-card {
+  width: 100%;
+  min-height: 100vh; /* Full viewport height */
+  padding: 40px;
+  box-sizing: border-box;
+  background: #f3f4f6; /* Light gray background */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.profile-avatar {
+  font-size: 80px;
+  color: #1f2937;
+}
+
+.profile-title h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.role-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: #2563eb;
+  color: white;
+}
+
+/* Grid layout */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.profile-item {
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.value {
+  font-size: 1rem;
+  color: #111827;
+}
+
+.mono {
+  font-family: monospace;
+}
+
+/* Role panel */
+.role-panel {
+  margin-top: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.role-panel-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.role-desc {
+  color: #374151;
+  line-height: 1.5;
+}
