@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RoleController;
@@ -17,8 +17,6 @@ use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\GroupAssignmentController;
-use Illuminate\Support\Facades\Route;
-
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -57,8 +55,12 @@ Route::apiResource('assignment', AssignmentController::class);
 
 Route::apiResource('groupassignment', GroupAssignmentController::class);
 
-
 Route::post('/register',[UsersController::class,'register']);
 Route::post('/login',[UsersController::class,'login']);
 Route::get('/dashboard',[UsersController::class,'dashboard']);
 Route::post('/logout',[UsersController::class,'logout']);
+
+// ===== Custom endpoints used by ActiveMeetingScreen.jsx =====
+Route::get('/meetings/{id}/details', [MeetingController::class, 'getMeetingWithAttendees']);
+Route::put('/meetings/{id}/start', [MeetingController::class, 'startMeeting']);
+Route::put('/meetings/{id}/end', [MeetingController::class, 'endMeeting']);

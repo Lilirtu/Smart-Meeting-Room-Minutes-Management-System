@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import "./ActiveMeetingScreen.css";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+
 const ActiveMeetingScreen = () => {
+  const { meetingId } = useParams();
   const [meeting, setMeeting] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -9,29 +13,33 @@ const ActiveMeetingScreen = () => {
   const [timer, setTimer] = useState(0);
   const [isTranscriptionOn, setIsTranscriptionOn] = useState(false);
 
-  const MEETING_ID = 1; // replace with dynamic value later
-
   useEffect(() => {
-    fetch(`http://localhost:8000/api/meetings/${MEETING_ID}/details`)
+    const controller = new AbortController();
+    setLoading(true);
+
+    fetch(`${API_BASE}/api/meetings/${meetingId}/details`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch meeting data");
         return res.json();
       })
       .then((data) => {
         setMeeting(data);
+        setIsMeetingActive(Boolean(data?.starttime && !data?.endtime));
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+        if (err.name !== "AbortError") {
+          setError(err.message);
+          setLoading(false);
+        }
       });
-  }, []);
+
+    return () => controller.abort();
+  }, [meetingId]);
 
   useEffect(() => {
-    let interval;
-    if (isMeetingActive) {
-      interval = setInterval(() => setTimer((prev) => prev + 1), 1000);
-    }
+    if (!isMeetingActive) return;
+    const interval = setInterval(() => setTimer((prev) => prev + 1), 1000);
     return () => clearInterval(interval);
   }, [isMeetingActive]);
 
@@ -42,20 +50,27 @@ const ActiveMeetingScreen = () => {
   };
 
   const handleStartEnd = () => {
-    if (isMeetingActive) {
-      fetch(`http://localhost:8000/api/meetings/${MEETING_ID}/end`, { method: "PUT" })
-        .then((res) => res.json())
-        .then(() => {
+    const path = isMeetingActive ? "end" : "start";
+    fetch(`${API_BASE}/api/meetings/${meetingId}/${path}`, { method: "PUT" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to ${path} meeting`);
+        return res.json().catch(() => ({}));
+      })
+      .then((payload) => {
+        if (isMeetingActive) {
           setIsMeetingActive(false);
           setTimer(0);
-        })
-        .catch(() => alert("Failed to end meeting"));
-    } else {
-      fetch(`http://localhost:8000/api/meetings/${MEETING_ID}/start`, { method: "PUT" })
-        .then((res) => res.json())
-        .then(() => setIsMeetingActive(true))
-        .catch(() => alert("Failed to start meeting"));
-    }
+          setMeeting((m) =>
+            m ? { ...m, endtime: payload?.endtime ?? m.endtime ?? new Date().toLocaleTimeString() } : m
+          );
+        } else {
+          setIsMeetingActive(true);
+          setMeeting((m) =>
+            m ? { ...m, starttime: payload?.starttime ?? m.starttime ?? new Date().toLocaleTimeString() } : m
+          );
+        }
+      })
+      .catch((e) => alert(e.message));
   };
 
   const toggleTranscription = () => setIsTranscriptionOn((prev) => !prev);
@@ -66,6 +81,8 @@ const ActiveMeetingScreen = () => {
 
   if (loading) return <p>Loading meeting info...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
+
+  const attendees = Array.isArray(meeting?.attendees) ? meeting.attendees : [];
 
   return (
     <div className="active-meeting-container">
@@ -78,10 +95,9 @@ const ActiveMeetingScreen = () => {
         <p><strong>End Time:</strong> {meeting.endtime || "Not ended yet"}</p>
         <p><strong>Attendees:</strong></p>
         <ul>
-          {meeting.attendees &&
-            meeting.attendees.map((person, index) => (
-              <li key={index}>{person}</li>
-            ))}
+          {attendees.map((person, index) => (
+            <li key={index}>{typeof person === "string" ? person : person?.name ?? "Unknown"}</li>
+          ))}
         </ul>
       </div>
 
@@ -98,14 +114,13 @@ const ActiveMeetingScreen = () => {
         </div>
 
         <div className="transcription-toggle">
-          <label>
-            <input
-              type="checkbox"
-              checked={isTranscriptionOn}
-              onChange={toggleTranscription}
-            />
-            Live Transcription
-          </label>
+          <input
+            id="transcription"
+            type="checkbox"
+            checked={isTranscriptionOn}
+            onChange={toggleTranscription}
+          />
+          <label htmlFor="transcription">Live Transcription</label>
         </div>
       </div>
 
