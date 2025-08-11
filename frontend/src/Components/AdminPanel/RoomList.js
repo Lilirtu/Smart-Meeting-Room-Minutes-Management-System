@@ -3,6 +3,7 @@ import { useNavigate, createSearchParams } from 'react-router-dom';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { API_BASE, authHeaders } from '../../helpers/api';
 
+
 export default function RoomList() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -201,6 +202,26 @@ export default function RoomList() {
           </tbody>
         </table>
       )}
+
+      <button
+        type="button"
+        onClick={() => navigate('/register')}
+        style={{
+          marginTop: '16px',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          border: '1px solid #2563eb',
+          background: '#2563eb',
+          color: '#fff',
+          cursor: 'pointer',
+        }}
+      >
+        Register User
+      </button>
+
+      <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+          ← Go Back
+        </button>
     </div>
   );
 }

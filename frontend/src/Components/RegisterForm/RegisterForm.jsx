@@ -1,7 +1,7 @@
 import '../LogInForm/LogIn&RegisterForm.css';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [FullName, setFullName] = useState("");         
@@ -12,6 +12,16 @@ const RegisterForm = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if logged user is admin, redirect if not
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || Number(user.role ?? user.RoleId) !== 1) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +50,6 @@ const RegisterForm = () => {
       if (err.response) {
         console.error("Error response:", err.response);
         if (err.response.data.errors) {
-          // Show first error if exists
           const firstKey = Object.keys(err.response.data.errors)[0];
           setError(err.response.data.errors[firstKey][0]);
         } else {
@@ -120,6 +129,10 @@ const RegisterForm = () => {
           <button type="submit" disabled={loading}>
             {loading ? "Registering..." : "Register"}
           </button>
+
+          <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+          ← Go Back
+        </button>
         </form>
       </div>
     </div>

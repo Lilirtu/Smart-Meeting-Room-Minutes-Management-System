@@ -30,7 +30,7 @@ public function show($id, Request $request)
     ]);
 
     $date = $request->input('date');
-    logger()->info("User ID {$user->id} requested meeting info for date: {$date}");
+    logger()->info("User ID {$user->id} requested meetings info for date: {$date}");
 
     // Get all MeetingIds the user is attending
     $meetingIds = Attendance::where('UserId', $user->id)->pluck('MeetingId');
@@ -40,40 +40,45 @@ public function show($id, Request $request)
     }
     logger()->info("User attends meetings with IDs: " . $meetingIds->implode(', '));
 
-    // Find the first meeting on that date among those meetings
-    $meeting = Meeting::whereIn('id', $meetingIds)
+    // Find all meetings on that date among those meetings
+    $meetings = Meeting::whereIn('id', $meetingIds)
         ->whereDate('Date', $date)
-        ->first();
+        ->get();
 
-    if (!$meeting) {
+    if ($meetings->isEmpty()) {
         logger()->warning("No meetings found for user ID {$user->id} on date {$date}");
         return response()->json(['error' => 'No meetings found on this date'], 404);
     }
 
-    logger()->info("Meeting found: ID {$meeting->id}, Title: {$meeting->Title}, Date: {$meeting->Date}");
+    // Prepare response data array with meeting info + room info
+    $responseData = [];
 
-    $reservation = Reservation::where('MeetingId', $meeting->id)->first();
-    if (!$reservation) {
-        logger()->warning("Reservation not found for MeetingId {$meeting->id}");
-        return response()->json(['error' => 'Reservation not found'], 404);
+    foreach ($meetings as $meeting) {
+        $reservation = Reservation::where('MeetingId', $meeting->id)->first();
+
+        if (!$reservation) {
+            logger()->warning("Reservation not found for MeetingId {$meeting->id}");
+            continue; // skip this meeting
+        }
+
+        $room = Room::where('id', $reservation->RoomId)->first();
+        if (!$room) {
+            logger()->warning("Room not found for RoomId {$reservation->RoomId}");
+            continue; // skip this meeting
+        }
+
+        $responseData[] = [
+            'meeting_title' => $meeting->Title,
+            'room_name' => $room->Name,
+            'room_location' => $room->Location,
+        ];
     }
 
-    $room = Room::where('id', $reservation->RoomId)->first();
-    if (!$room) {
-        logger()->warning("Room not found for RoomId {$reservation->RoomId}");
-        return response()->json(['error' => 'Room not found'], 404);
+    if (empty($responseData)) {
+        return response()->json(['error' => 'No valid meetings found with room information'], 404);
     }
 
-    logger()->info("Room found: ID {$room->id}, Name: {$room->Name}, Location: {$room->Location}");
-
-    return response()->json([
-        'meeting_title' => $meeting->Title,
-        'room_name' => $room->Name,
-        'room_location' => $room->Location,
-    ]);
+    return response()->json(['meetings' => $responseData]);
 }
-
-
-
 
 }

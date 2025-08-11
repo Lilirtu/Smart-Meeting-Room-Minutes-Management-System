@@ -21,12 +21,6 @@ const Home = () => {
         >
           Login
         </button>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigateTo('/register')}
-        >
-          Register
-        </button>
       </div>
     </div>
   );

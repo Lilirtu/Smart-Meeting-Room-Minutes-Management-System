@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { API_BASE, authHeaders } from '../../helpers/api';
+import { useNavigate } from 'react-router-dom';
 import './Profile.css';
 
 export default function Profile() {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -84,6 +86,10 @@ export default function Profile() {
           <p className="role-desc">{role.description}</p>
         </div>
       )}
+
+      <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+          ← Go Back
+        </button> 
     </div>
   );
 }

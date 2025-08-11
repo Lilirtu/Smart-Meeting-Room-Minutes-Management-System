@@ -11,6 +11,8 @@ import MinutesForm from './Components/MinutesForm/MinutesForm';
 import PostMeetingReview from './Components/PostMeetingReview/PostMeetingReview';
 import Notifications from './Components/Notifications/Notifications';
 import RoomsPage from './Components/RoomsPage/RoomsPage';
+import RoomsForm from './Components/AdminPanel/RoomForm';
+import RoomsList from './Components/AdminPanel/RoomList';
 import RoomDetails from './Components/RoomDetails/RoomDetails';
 import SubmitAssignment from './Components/SubmitAssignment';
 import Profile from './Components/Profile/Profile';
@@ -78,7 +80,16 @@ export default function AppRouter() {
         path="/room-management"
         element={
           <RequireAuth>
-            <RoomsPage />
+            <RoomsList />
+          </RequireAuth>
+        }
+      />
+
+      <Route
+        path="/add-room"
+        element={
+          <RequireAuth>
+            <RoomsForm />
           </RequireAuth>
         }
       />

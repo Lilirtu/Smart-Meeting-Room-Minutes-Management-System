@@ -9,15 +9,22 @@ function CalendarWidget({ userId }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Fetch events from the backend based on selected date
+  // Format date in 'YYYY-MM-DD' format for API request
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // Adjust to UTC
+    return d.toISOString().split('T')[0]; // Format: 'YYYY-MM-DD'
+  };
+
+  // Fetch meetings for the selected date
   const fetchEvents = async (date) => {
     setLoading(true);
-    setError(''); // Clear any previous errors
-    setEvents([]); // Clear previous event data
+    setError('');
+    setEvents([]);
     const formattedDate = formatDate(date);
 
     try {
-      // Ensure the userId and token exist before making the request
       if (!userId || !localStorage.getItem('token')) {
         setError('User is not authenticated');
         setLoading(false);
@@ -26,43 +33,27 @@ function CalendarWidget({ userId }) {
 
       const response = await axios.get(`http://localhost:8000/api/DashboardConnection/${userId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`, // JWT token stored in localStorage
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
-        params: {
-          date: formattedDate,
-        },
+        params: { date: formattedDate },
       });
 
-      // Check if the response contains data
-      if (response.data.meeting_title) {
-        // Assuming response contains event data
-        setEvents([
-          `Meeting: ${response.data.meeting_title}`,
-          `Room: ${response.data.room_name}`,
-          `Location: ${response.data.room_location}`,
-        ]);
+      if (response.data.meetings && response.data.meetings.length > 0) {
+        setEvents(response.data.meetings);
       } else {
-        setError('No meetings'); // Set error if no data is found
+        setError('No meetings on this date');
       }
     } catch (err) {
       setError('No meetings found');
-      console.error(err);  // Log the error for debugging
+      console.error(err);
     }
+
     setLoading(false);
   };
 
-  // Format date in 'YYYY-MM-DD' format for API request
-  const formatDate = (date) => {
-    if (!date) return '';
-    // Convert to UTC (to avoid time zone issues) and format as 'YYYY-MM-DD'
-    const d = new Date(date);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // Adjust to UTC
-    return d.toISOString().split('T')[0]; // Format: 'YYYY-MM-DD'
-  };
-
-  // UseEffect to fetch events whenever the selected date changes
+  // Fetch meetings when selectedDate changes
   useEffect(() => {
-    fetchEvents(selectedDate); // Fetch events when component loads or date changes
+    fetchEvents(selectedDate);
   }, [selectedDate]);
 
   const formattedDate = formatDate(selectedDate);
@@ -78,7 +69,7 @@ function CalendarWidget({ userId }) {
       </div>
 
       <div style={{
-        minWidth: '220px',
+        minWidth: '280px',
         padding: '15px',
         borderRadius: '8px',
         background: '#fff',
@@ -87,15 +78,19 @@ function CalendarWidget({ userId }) {
         <h5>Meetings on {formattedDate || 'No date selected'}</h5>
 
         {loading && <p>Loading...</p>}
-        {error && <p style={{ color: 'black' }}>{error}</p>} {/* Error displayed in black */}
+        {error && <p style={{ color: 'black' }}>{error}</p>}
 
         <ul>
           {events.length > 0 ? (
             events.map((event, index) => (
-              <li key={index}>{event}</li>
+              <li key={index} style={{ marginBottom: '15px' }}>
+                <strong>Meeting:</strong> {event.meeting_title} <br />
+                <strong>Room:</strong> {event.room_name} <br />
+                <strong>Location:</strong> {event.room_location}
+              </li>
             ))
           ) : (
-            <li>No meetings on this day</li>  
+            !loading && <li>No meetings on this day</li>
           )}
         </ul>
       </div>

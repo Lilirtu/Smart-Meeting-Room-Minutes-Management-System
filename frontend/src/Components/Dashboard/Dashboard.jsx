@@ -96,8 +96,6 @@ const Dashboard = () => {
 
       <div className="dashboard-grid">
         <div className="left-column">
-          <CreateMeeting />
-
           {/* Admin-only: renders nothing for non-admins */}
           <AdminPanelButton /> {/* ⬅️ NEW */}
 
@@ -120,9 +118,6 @@ const Dashboard = () => {
           <CalendarWidget userId={user?.id} />
         </div>
 
-        <div className="right-column">
-          <UpcomingEvents />
-        </div>
       </div>
     </div>
   );

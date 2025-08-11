@@ -9,7 +9,7 @@ class Reservation extends Model
     protected $table = 'Reservation';
     public $timestamps = false;
     protected $primaryKey = 'id';
-    protected $fillable = ['Status', 'StartTime', 'EndTime', 'Date', 'UserId', 'RoomId'];
+    protected $fillable = ['Status', 'StartTime', 'EndTime', 'Date', 'UserId', 'RoomId', 'MeetingId'];
 
     public function meeting() {
         return $this->hasOne(Meeting::class, 'ReservationId');

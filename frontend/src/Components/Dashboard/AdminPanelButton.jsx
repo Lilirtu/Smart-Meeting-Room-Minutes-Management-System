@@ -29,7 +29,7 @@ export default function AdminPanelButton() {
   return (
     <button
       type="button"
-      onClick={() => navigate('/room-list')}
+      onClick={() => navigate('/room-Management')}
       className="custom-button"
       style={{ marginBottom: 12 }}
     >

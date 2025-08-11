@@ -41,6 +41,10 @@ const RoomsPage = () => {
       ) : (
         <p>No rooms available.</p>
       )}
+
+      <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+          ← Go Back
+        </button> 
     </div>
   );
 };
