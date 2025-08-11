@@ -14,8 +14,8 @@ import RoomsPage from './Components/RoomsPage/RoomsPage';
 import RoomDetails from './Components/RoomDetails/RoomDetails';
 import SubmitAssignment from './Components/SubmitAssignment';
 import Profile from './Components/Profile/Profile';
+import ActiveMeetingScreen from './Components/ActiveMeetingScreen/ActiveMeetingScreen';
 
-/** Guards */
 function RequireAuth({ children }) {
   const location = useLocation();
   const token = localStorage.getItem('token');
@@ -33,12 +33,11 @@ function RequireAdmin({ children }) {
       ? Number(localStorage.getItem('roleId'))
       : null;
 
-  const isAdmin = !!token && roleId === 1; // 1 = Admin
+  const isAdmin = !!token && roleId === 1;
   if (!isAdmin) return <Navigate to="/login" replace state={{ from: location }} />;
   return children;
 }
 
-/** Router */
 export default function AppRouter() {
   return (
     <Routes>
@@ -48,124 +47,32 @@ export default function AppRouter() {
       <Route path="/register" element={<RegisterForm />} />
 
       {/* Authenticated core */}
-      <Route
-        path="/dashboard"
-        element={
-          <RequireAuth>
-            <Dashboard />
-          </RequireAuth>
-        }
-      />
+      <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
 
-      {/* Rooms list + aliases (for your existing buttons/links) */}
-      <Route
-        path="/rooms"
-        element={
-          <RequireAuth>
-            <RoomsPage />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/room-list"
-        element={
-          <RequireAuth>
-            <RoomsPage />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/room-management"
-        element={
-          <RequireAuth>
-            <RoomsPage />
-          </RequireAuth>
-        }
-      />
+      {/* Rooms */}
+      <Route path="/rooms" element={<RequireAuth><RoomsPage /></RequireAuth>} />
+      <Route path="/room-list" element={<RequireAuth><RoomsPage /></RequireAuth>} />
+      <Route path="/room-management" element={<RequireAuth><RoomsPage /></RequireAuth>} />
+      <Route path="/rooms/:id" element={<RequireAuth><RoomDetails /></RequireAuth>} />
 
-      {/* Room details (expects /rooms/:id) */}
-      <Route
-        path="/rooms/:id"
-        element={
-          <RequireAuth>
-            <RoomDetails />
-          </RequireAuth>
-        }
-      />
-
-      {/* Booking: keep your original and an alias used by the details page */}
-      <Route
-        path="/book-room"
-        element={
-          <RequireAuth>
-            <MeetingRoomBooking />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/booking/:id"
-        element={
-          <RequireAuth>
-            <MeetingRoomBooking />
-          </RequireAuth>
-        }
-      />
+      {/* Booking */}
+      <Route path="/book-room" element={<RequireAuth><MeetingRoomBooking /></RequireAuth>} />
+      <Route path="/booking/:id" element={<RequireAuth><MeetingRoomBooking /></RequireAuth>} />
 
       {/* Minutes & reviews */}
-      <Route
-        path="/minutes"
-        element={
-          <RequireAuth>
-            <MinutesForm />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/post-meeting-review"
-        element={
-          <RequireAuth>
-            <PostMeetingReview />
-          </RequireAuth>
-        }
-      />
+      <Route path="/minutes" element={<RequireAuth><MinutesForm /></RequireAuth>} />
+      <Route path="/minutes/:meetingId" element={<RequireAuth><MinutesForm /></RequireAuth>} />
+      <Route path="/post-meeting-review" element={<RequireAuth><PostMeetingReview /></RequireAuth>} />
 
       {/* Notifications */}
-      <Route
-        path="/notifications"
-        element={
-          <RequireAuth>
-            <Notifications />
-          </RequireAuth>
-        }
-      />
+      <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
 
-      {/* Submit assignment (hyphen + no-hyphen) */}
-      <Route
-        path="/submit-assignment"
-        element={
-          <RequireAuth>
-            <SubmitAssignment />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/submitassignment"
-        element={
-          <RequireAuth>
-            <SubmitAssignment />
-          </RequireAuth>
-        }
-      />
+      {/* Submit assignment */}
+      <Route path="/submit-assignment" element={<RequireAuth><SubmitAssignment /></RequireAuth>} />
+      <Route path="/submitassignment" element={<RequireAuth><SubmitAssignment /></RequireAuth>} />
 
-      {/* Profile */}
-      <Route
-        path="/profile"
-        element={
-          <RequireAuth>
-            <Profile />
-          </RequireAuth>
-        }
-      />
+      {/* Kept for compatibility */}
+      <Route path="/active-meeting/:meetingId" element={<RequireAuth><ActiveMeetingScreen /></RequireAuth>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

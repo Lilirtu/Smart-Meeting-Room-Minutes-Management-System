@@ -94,5 +94,13 @@ Route::middleware('auth:api')->group(function () {
     Route::get('roomIndex', [RoomController::class, 'index']);
     Route::apiResource('room', RoomController::class);
 
+    Route::middleware('auth:api')->group(function () {
+    Route::get('/meetings/{id}/details', [MinutesOfMeetingController::class, 'details']);
+    Route::get('/meetings/{id}/minutes', [MinutesOfMeetingController::class, 'indexForMeeting']);
+    Route::post('/meetings/{id}/minutes', [MinutesOfMeetingController::class, 'storeForMeeting']);
+    Route::put('/meetings/{id}/start', [MinutesOfMeetingController::class, 'startMeeting']);
+    Route::put('/meetings/{id}/end', [MinutesOfMeetingController::class, 'endMeeting']);
+});
+
 
 });

@@ -11,7 +11,8 @@ import NotificationButton from './NotificationButton';
 import ProfileButton from './ProfileButton';
 import PostMeetingReviewButton from './PostMeetingReviewButton'; 
 import SubmitWorkButton from './SubmitWorkButton';
-import AdminPanelButton from './AdminPanelButton'; // ⬅️ NEW
+import AdminPanelButton from './AdminPanelButton';
+import ActiveMeetingScreeningButton from './ActiveMeetingScreeningButton';
 
 // Icons
 import { FaDoorOpen, FaSignOutAlt } from 'react-icons/fa';
@@ -38,22 +39,15 @@ const Dashboard = () => {
       setUser(parsedUser);
 
       axios.get("http://localhost:8000/api/dashboard", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       })
-      .then((response) => {
-        console.log("Dashboard data:", response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Invalid or expired token:", err);
+      .then(() => setLoading(false))
+      .catch(() => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
         navigate("/login");
       });
-    } catch (error) {
-      console.error("Failed to parse user data:", error);
+    } catch {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       navigate("/login");
@@ -62,17 +56,11 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
-
     try {
       await axios.post("http://localhost:8000/api/logout", {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-    } catch (err) {
-      console.warn("Logout failed or token expired.");
-    }
-
+    } catch {}
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
@@ -97,9 +85,7 @@ const Dashboard = () => {
       <div className="dashboard-grid">
         <div className="left-column">
           <CreateMeeting />
-
-          {/* Admin-only: renders nothing for non-admins */}
-          <AdminPanelButton /> {/* ⬅️ NEW */}
+          <AdminPanelButton />
 
           <button
             className="custom-button"
@@ -111,7 +97,6 @@ const Dashboard = () => {
           </button>
 
           <SubmitWorkButton />
-
           <DeadlineAlert />
           <PostMeetingReviewButton />
         </div>
@@ -122,6 +107,8 @@ const Dashboard = () => {
 
         <div className="right-column">
           <UpcomingEvents />
+          {/* Shows only when the user has a meeting that has already started */}
+          <ActiveMeetingScreeningButton userId={user?.id} />
         </div>
       </div>
     </div>
