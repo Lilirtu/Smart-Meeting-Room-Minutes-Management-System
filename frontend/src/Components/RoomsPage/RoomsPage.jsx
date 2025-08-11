@@ -1,35 +1,34 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import RoomCard from "./RoomCard";  // Adjust path as necessary
+import { useNavigate } from "react-router-dom";
+import RoomCard from "./RoomCard";
 
 const RoomsPage = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     axios
-      .get("http://localhost:8000/api/room", {
+      .get("http://localhost:8000/api/roomIndex", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        // Normalize rooms' ids to a standard format
-        const normalizedRooms = res.data.map((room) => ({
-          ...room,
-          id: room?.id ?? room?.Id ?? room?.roomId ?? room?.RoomId, // ensure `id` is always defined
-        }));
-
-        setRooms(normalizedRooms);
+        setRooms(res.data);
         setLoading(false);
       })
       .catch(() => {
         setError("Failed to fetch rooms.");
         setLoading(false);
       });
-  }, []);
+  }, [navigate]);
 
   if (loading) return <p className="text-center">Loading Rooms...</p>;
   if (error) return <p className="text-center text-danger">{error}</p>;

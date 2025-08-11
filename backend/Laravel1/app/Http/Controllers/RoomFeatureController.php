@@ -2,44 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RoomFeature;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class RoomFeatureController extends Controller
-{
-    // GET /api/room/{roomId}/features
-    public function listForRoom($roomId)
-    {
-        $rows = DB::table('RoomFeature as rf')
-            ->join('Feature as f', 'rf.FeatureId', '=', 'f.id')
-            ->where('rf.RoomId', $roomId)
-            ->select('rf.FeatureId', 'f.FeatureName')
-            ->orderBy('f.FeatureName')
-            ->get();
+class RoomFeatureController extends Controller {
 
-        return [
-            'RoomId'     => (int)$roomId,
-            'FeatureIds' => $rows->pluck('FeatureId')->map(fn($v) => (int)$v)->values(),
-            'Features'   => $rows->pluck('FeatureName')->values(),
-        ];
+    public function index() {
+        return RoomFeature::all();
     }
 
-    // POST /api/room/{roomId}/features
-    // body: { "FeatureIds": [1,2,3] }
-    public function syncForRoom($roomId, Request $req)
-    {
-        $data = $req->validate([
-            'FeatureIds'   => 'array',
-            'FeatureIds.*' => 'integer|exists:Feature,id',
+    public function show($id) {
+        return RoomFeature::findOrFail($id);
+    }
+
+    public function store(Request $request) {
+        $data = $request->validate([
+            'RoomId'    => 'required|integer|exists:rooms,id',
+            'FeatureId' => 'required|integer|exists:features,id',
         ]);
 
-        DB::table('RoomFeature')->where('RoomId', $roomId)->delete();
+        $roomFeature = RoomFeature::create($data);
+        return response()->json($roomFeature, 201);
+    }
 
-        if (!empty($data['FeatureIds'])) {
-            $rows = array_map(fn($fid) => ['RoomId' => (int)$roomId, 'FeatureId' => (int)$fid], $data['FeatureIds']);
-            DB::table('RoomFeature')->insert($rows);
-        }
+    public function update(Request $request, $id) {
+        $roomFeature = RoomFeature::findOrFail($id);
 
-        return response()->json(['ok' => true]);
+        $data = $request->validate([
+            'RoomId'    => 'sometimes|integer|exists:rooms,id',
+            'FeatureId' => 'sometimes|integer|exists:features,id',
+        ]);
+
+        $roomFeature->update($data);
+
+        return response()->json($roomFeature);
+    }
+
+    public function destroy($id) {
+        $roomFeature = RoomFeature::findOrFail($id);
+        $roomFeature->delete();
+
+        return response()->json(null, 204);
     }
 }

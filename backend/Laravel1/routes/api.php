@@ -93,6 +93,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('roomIndex', [RoomController::class, 'index']);
     Route::apiResource('room', RoomController::class);
+    // In routes/api.php
+
+Route::get('/rooms/{id}', [RoomController::class, 'show']);
 
 
 });
